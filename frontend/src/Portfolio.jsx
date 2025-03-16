@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faLinkedin, faGithub, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
-import UserImage from './assets/User.png'; // Assuming User.png is in the same directory
+import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import UserImage from './assets/User.png';
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -124,10 +124,24 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Ghost Brand"
-              description="A comprehensive branding and design project showcasing creative direction."
+              description="An All in one solution for Personal Brands to sell anything Online"
               tags={['UI/UX', 'Branding', 'Design System']}
               link="https://ghostbrand.onrender.com/"
-              status="complete"
+              status="in development"
+            />
+            <ProjectCard
+              title="Skord"
+              description="An AI agent that helps users make smart choices and decisions."
+              tags={['React', 'AI', 'Decision Making', 'Python']}
+              link="https://skord-g2rv.onrender.com"
+              status="in development"
+            />
+            <ProjectCard
+              title="Kai"
+              description="An intelligent AI designed to streamline your development process."
+              tags={['React', 'AI', 'Development Tools', 'Automation']}
+              link="https://kai-qxl4.onrender.com"
+              status="in development"
             />
           </div>
         </section>
@@ -191,22 +205,29 @@ const Portfolio = () => {
               title="Design"
               skills={['Graphic Design', 'UI/UX Design', 'Visual Effects', 'Brand Development']}
             />
+            <SkillCategory
+              title="Content Creation"
+              skills={['GFX Design', 'VFX Design', 'Content Research', 'Content Writing', 'Content Curation', 'AI Generated Videos']}
+            />
           </div>
         </section>
 
         <section id="contact">
           <h2>Get In Touch</h2>
           <p>I'm always open to discussing new projects, creative ideas, or opportunities.</p>
-          <a href="mailto:contact@abhishek.dev" className="cta">Say Hello</a>
+          <a href="https://wa.link/pz0f28" target="_blank" rel="noopener noreferrer" className="cta">Say Hello</a>
         </section>
       </main>
 
       <footer>
         <div className="social-links">
           <a href="#" title="LinkedIn"><FontAwesomeIcon icon={faLinkedin} /></a>
-          <a href="#" title="GitHub"><FontAwesomeIcon icon={faGithub} /></a>
-          <a href="#" title="Twitter"><FontAwesomeIcon icon={faTwitter} /></a>
-          <a href="#" title="Instagram"><FontAwesomeIcon icon={faInstagram} /></a>
+          <a href="https://www.instagram.com/the_cassini_huygens?igsh=enVoazF3ZHRpYTQ4" target="_blank" rel="noopener noreferrer" title="Instagram">
+            <FontAwesomeIcon icon={faInstagram} />
+          </a>
+          <a href="https://wa.link/pz0f28" target="_blank" rel="noopener noreferrer" title="WhatsApp">
+            <FontAwesomeIcon icon={faWhatsapp} />
+          </a>
         </div>
         <p>© 2025 Harx. All rights reserved.</p>
       </footer>
