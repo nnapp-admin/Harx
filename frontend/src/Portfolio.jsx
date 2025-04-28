@@ -108,13 +108,14 @@ const Portfolio = () => {
               link="https://mywaiter.in"
               status="complete"
             />
-            <ProjectCard
-              title="Nutrination.AI"
-              description="A modern health management platform leveraging AI for personalized solutions."
-              tags={['React', 'AI', 'Healthcare', 'Python']}
-              link="https://storied-cocada-8bfcc4.netlify.app/"
+                        <ProjectCard
+              title="Skord"
+              description="An AI agent that helps users make smart choices and decisions."
+              tags={['React', 'AI', 'Decision Making', 'Python']}
+              link="https://skord-g2rv.onrender.com"
               status="in development"
             />
+
             <ProjectCard
               title="Brandmap"
               description="A modern tool to see trending brands, shops for clothing, food, bars, events, and celebrities on a map."
@@ -129,19 +130,19 @@ const Portfolio = () => {
               link="https://ghostbrand.onrender.com/"
               status="in development"
             />
-            <ProjectCard
-              title="Skord"
-              description="An AI agent that helps users make smart choices and decisions."
-              tags={['React', 'AI', 'Decision Making', 'Python']}
-              link="https://skord-g2rv.onrender.com"
+                        <ProjectCard
+              title="Nutrination.AI"
+              description="A modern health management platform leveraging AI for personalized solutions."
+              tags={['React', 'AI', 'Healthcare', 'Python']}
+              link="https://storied-cocada-8bfcc4.netlify.app/"
               status="in development"
             />
-            <ProjectCard
-              title="Kai"
-              description="An intelligent AI designed to streamline your development process."
+                        <ProjectCard
+              title="drOcto"
+              description="drOcto is an AI-based interactive learning platform for kids to Boost critical thinking, problem-solving, and real-world skills."
               tags={['React', 'AI', 'Development Tools', 'Automation']}
-              link="https://kai-qxl4.onrender.com"
-              status="in development"
+              link="https://drocto.in"
+              status="complete"
             />
           </div>
         </section>
