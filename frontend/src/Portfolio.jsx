@@ -153,8 +153,8 @@ const Portfolio = () => {
             <ExperienceCard
               date="May 2023 - Present"
               title="Founder & CEO"
-              company="Nutrination.AI"
-              description="Developing a modern, all-in-one, end-to-end health management platform."
+              company="Cassini Corp"
+              description="Stealth Startup (Agentic AI)"
               tags={['Team Management', 'Fundraising', 'Strategic Planning', 'Entrepreneurship']}
             />
             <ExperienceCard
