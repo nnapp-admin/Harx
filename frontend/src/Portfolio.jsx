@@ -4,11 +4,13 @@ import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import Lottie from 'react-lottie';
 import UserImage from './assets/User.png';
-import LoadingAnimation from './assets/Loading.json'; // Import the Lottie animation
+import Banner from './assets/Banner.jpg'; // Import Banner.jpg
+import LoadingAnimation from './assets/Loading.json';
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isUserImageLoaded, setIsUserImageLoaded] = useState(false); // State for UserImage loading
+  const [isPageLoaded, setIsPageLoaded] = useState(false); // New state for page loading
+  const [isUserImageLoaded, setIsUserImageLoaded] = useState(false);
 
   const toggleNav = () => setIsNavOpen(!isNavOpen);
 
@@ -28,26 +30,38 @@ const Portfolio = () => {
     },
   };
 
-  // Handle image load for UserImage
+  // Handle page load (including UserImage and other critical assets)
   useEffect(() => {
     const img = new Image();
     img.src = UserImage;
-    img.onload = () => setIsUserImageLoaded(true);
-    img.onerror = () => setIsUserImageLoaded(true); // Handle error as loaded to avoid infinite loading
+    img.onload = () => {
+      setIsUserImageLoaded(true);
+      setIsPageLoaded(true); // Set page as loaded when UserImage is ready
+    };
+    img.onerror = () => {
+      setIsUserImageLoaded(true);
+      setIsPageLoaded(true); // Handle error to avoid infinite loading
+    };
+
+    // Optional: Add a fallback timeout to ensure loading screen doesn't persist indefinitely
+    const timeout = setTimeout(() => {
+      setIsPageLoaded(true);
+    }, 5000); // 5 seconds fallback
+
+    return () => clearTimeout(timeout); // Cleanup timeout
   }, []);
 
   const ProjectCard = ({ title, description, tags, link, status, image }) => {
     const [isProjectImageLoaded, setIsProjectImageLoaded] = useState(false);
 
-    // Handle image load for project images
     useEffect(() => {
       if (image) {
         const img = new Image();
         img.src = image;
         img.onload = () => setIsProjectImageLoaded(true);
-        img.onerror = () => setIsProjectImageLoaded(true); // Handle error as loaded
+        img.onerror = () => setIsProjectImageLoaded(true);
       } else {
-        setIsProjectImageLoaded(true); // No image provided, treat as loaded
+        setIsProjectImageLoaded(true);
       }
     }, [image]);
 
@@ -122,6 +136,30 @@ const Portfolio = () => {
     </div>
   );
 
+  // Render loading screen if page is not loaded
+  if (!isPageLoaded) {
+    return (
+      <div className="page-loading-container">
+        <Lottie options={lottieOptions} height={200} width={200} />
+        <style jsx>{`
+          .page-loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Render main content once loaded
   return (
     <div className="portfolio">
       <header>
@@ -168,17 +206,17 @@ const Portfolio = () => {
       <main>
         <section id="home" className="hero">
           <div className="hero-content">
-            {isUserImageLoaded ? (
-              <img src={UserImage} alt="Harx" className="user-image" />
-            ) : (
-              <div className="loading-container">
-                <Lottie options={lottieOptions} height={100} width={100} />
-              </div>
-            )}
+            <img src={UserImage} alt="Harx" className="user-image" />
             <h1>Hello, I'm Harx</h1>
           </div>
           <p>
-           Full Stack Developer & Entrepreneur with hands-on experience across every stage of a tech startup lifecycle — from ideation, market research, MVP development to UI/UX design, backend infrastructure,launch execution, content and digital/physical marketing strategy. Skilled in user acquisition, customer onboarding, growth hacking, and retention strategies. Proven ability to build scalable products, pivot based on feedback, and ultimately drive monetization or exit. Passionate about solving real-world problems through technology from zero to one — and beyond.
+            Full Stack Developer & Entrepreneur with hands-on experience across every stage of a tech
+            startup lifecycle — from ideation, market research, MVP development to UI/UX design,
+            backend infrastructure, launch execution, content and digital/physical marketing strategy.
+            Skilled in user acquisition, customer onboarding, growth hacking, and retention strategies.
+            Proven ability to build scalable products, pivot based on feedback, and ultimately drive
+            monetization or exit. Passionate about solving real-world problems through technology from
+            zero to one — and beyond.
           </p>
           <div>
             <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>
@@ -199,7 +237,7 @@ const Portfolio = () => {
               tags={['React', 'Next.js', 'Location Services', 'Safety Tech']}
               link="https://pinksync.onrender.com/"
               status="complete"
-              image="/path/to/pinksync-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="MyWaiter"
@@ -207,7 +245,7 @@ const Portfolio = () => {
               tags={['React', 'Node.js', 'MongoDB', 'Restaurant Tech']}
               link="https://mywaiter.in"
               status="complete"
-              image="/path/to/mywaiter-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Skord"
@@ -215,7 +253,7 @@ const Portfolio = () => {
               tags={['React', 'AI', 'Decision Making', 'Python']}
               link="https://skord-g2rv.onrender.com"
               status="in development"
-              image="/path/to/skord-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Brandmap"
@@ -223,7 +261,7 @@ const Portfolio = () => {
               tags={['React', 'Map API', 'Social Media', 'Trends']}
               link="https://map-o7bz.onrender.com"
               status="in development"
-              image="/path/to/brandmap-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Ghost Brand"
@@ -231,7 +269,7 @@ const Portfolio = () => {
               tags={['UI/UX', 'Branding', 'Design System']}
               link="https://ghostbrand.onrender.com/"
               status="in development"
-              image="/path/to/ghostbrand-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Gig Advance"
@@ -239,7 +277,7 @@ const Portfolio = () => {
               tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
               link="https://giga-483t.onrender.com/"
               status="in development"
-              image="/path/to/gigadvance-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Analytics Dashboard"
@@ -247,7 +285,7 @@ const Portfolio = () => {
               tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
               link="https://fantasy11-3vnl.onrender.com/"
               status="complete"
-              image="/path/to/analytics-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="Nutrination.AI"
@@ -255,7 +293,7 @@ const Portfolio = () => {
               tags={['React', 'AI', 'Healthcare', 'Python']}
               link="https://storied-cocada-8bfcc4.netlify.app/"
               status="in development"
-              image="/path/to/nutrination-image.jpg" // Replace with actual image path
+              image={Banner}
             />
             <ProjectCard
               title="drOcto"
@@ -263,7 +301,7 @@ const Portfolio = () => {
               tags={['React', 'AI', 'Development Tools', 'Automation']}
               link="https://drocto.in"
               status="complete"
-              image="/path/to/drocto-image.jpg" // Replace with actual image path
+              image={Banner}
             />
           </div>
         </section>
