@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import Lottie from 'react-lottie';
 import UserImage from './assets/User.png';
+import LoadingAnimation from './assets/Loading.json'; // Import the Lottie animation
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isUserImageLoaded, setIsUserImageLoaded] = useState(false); // State for UserImage loading
 
   const toggleNav = () => setIsNavOpen(!isNavOpen);
 
@@ -15,26 +18,75 @@ const Portfolio = () => {
     setIsNavOpen(false);
   };
 
-  const ProjectCard = ({ title, description, tags, link, status }) => (
-    <div className="project-card">
-      <div className="project-img">{title}</div>
-      <div className="project-info">
-        <h3>{title}</h3>
-        <p>{description}</p>
-        <div className="status-section">
-          <span className={`status ${status.toLowerCase()}`}>
-            {status === 'complete' ? 'Complete' : 'In Development'}
-          </span>
+  // Lottie animation options
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: LoadingAnimation,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  };
+
+  // Handle image load for UserImage
+  useEffect(() => {
+    const img = new Image();
+    img.src = UserImage;
+    img.onload = () => setIsUserImageLoaded(true);
+    img.onerror = () => setIsUserImageLoaded(true); // Handle error as loaded to avoid infinite loading
+  }, []);
+
+  const ProjectCard = ({ title, description, tags, link, status, image }) => {
+    const [isProjectImageLoaded, setIsProjectImageLoaded] = useState(false);
+
+    // Handle image load for project images
+    useEffect(() => {
+      if (image) {
+        const img = new Image();
+        img.src = image;
+        img.onload = () => setIsProjectImageLoaded(true);
+        img.onerror = () => setIsProjectImageLoaded(true); // Handle error as loaded
+      } else {
+        setIsProjectImageLoaded(true); // No image provided, treat as loaded
+      }
+    }, [image]);
+
+    return (
+      <div className="project-card">
+        <div className="project-img">
+          {isProjectImageLoaded && image ? (
+            <img src={image} alt={title} className="project-image" />
+          ) : (
+            <div className="loading-container">
+              <Lottie options={lottieOptions} height={100} width={100} />
+            </div>
+          )}
+          {!image && isProjectImageLoaded && title}
         </div>
-        <div>
-          {tags.map((tag, index) => (
-            <span key={index} className="tag">{tag}</span>
-          ))}
+        <div className="project-info">
+          <h3>{title}</h3>
+          <p>{description}</p>
+          <div className="status-section">
+            <span className={`status ${status.toLowerCase()}`}>
+              {status === 'complete' ? 'Complete' : 'In Development'}
+            </span>
+          </div>
+          <div>
+            {tags.map((tag, index) => (
+              <span key={index} className="tag">{tag}</span>
+            ))}
+          </div>
+          {link && (
+            <p>
+              <a href={link} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+                Live Demo →
+              </a>
+            </p>
+          )}
         </div>
-        {link && <p><a href={link} style={{ color: 'var(--primary)', textDecoration: 'none' }}>Live Demo →</a></p>}
       </div>
-    </div>
-  );
+    );
+  };
 
   const ExperienceCard = ({ date, title, company, description, tags }) => (
     <div className="experience-card">
@@ -43,7 +95,9 @@ const Portfolio = () => {
       <h4>{company}</h4>
       <p>{description}</p>
       <div>
-        {tags.map((tag, index) => <span key={index} className="tag">{tag}</span>)}
+        {tags.map((tag, index) => (
+          <span key={index} className="tag">{tag}</span>
+        ))}
       </div>
     </div>
   );
@@ -61,7 +115,9 @@ const Portfolio = () => {
     <div className="skill-category">
       <h3>{title}</h3>
       <div className="skill-list">
-        {skills.map((skill, index) => <span key={index} className="skill-tag">{skill}</span>)}
+        {skills.map((skill, index) => (
+          <span key={index} className="skill-tag">{skill}</span>
+        ))}
       </div>
     </div>
   );
@@ -72,12 +128,36 @@ const Portfolio = () => {
         <div className="logo">Harshit</div>
         <nav className={isNavOpen ? 'active' : ''}>
           <ul>
-            <li><a href="#home" onClick={(e) => scrollToSection(e, '#home')}>Home</a></li>
-            <li><a href="#projects" onClick={(e) => scrollToSection(e, '#projects')}>Projects</a></li>
-            <li><a href="#experience" onClick={(e) => scrollToSection(e, '#experience')}>Experience</a></li>
-            <li><a href="#education" onClick={(e) => scrollToSection(e, '#education')}>Education</a></li>
-            <li><a href="#skills" onClick={(e) => scrollToSection(e, '#skills')}>Skills</a></li>
-            <li><a href="#contact" onClick={(e) => scrollToSection(e, '#contact')}>Contact</a></li>
+            <li>
+              <a href="#home" onClick={(e) => scrollToSection(e, '#home')}>
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="#projects" onClick={(e) => scrollToSection(e, '#projects')}>
+                Projects
+              </a>
+            </li>
+            <li>
+              <a href="#experience" onClick={(e) => scrollToSection(e, '#experience')}>
+                Experience
+              </a>
+            </li>
+            <li>
+              <a href="#education" onClick={(e) => scrollToSection(e, '#education')}>
+                Education
+              </a>
+            </li>
+            <li>
+              <a href="#skills" onClick={(e) => scrollToSection(e, '#skills')}>
+                Skills
+              </a>
+            </li>
+            <li>
+              <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')}>
+                Contact
+              </a>
+            </li>
           </ul>
         </nav>
         <div className="mobile-menu" onClick={toggleNav}>
@@ -88,13 +168,25 @@ const Portfolio = () => {
       <main>
         <section id="home" className="hero">
           <div className="hero-content">
-            <img src={UserImage} alt="Harx" className="user-image" />
+            {isUserImageLoaded ? (
+              <img src={UserImage} alt="Harx" className="user-image" />
+            ) : (
+              <div className="loading-container">
+                <Lottie options={lottieOptions} height={100} width={100} />
+              </div>
+            )}
             <h1>Hello, I'm Harx</h1>
           </div>
-          <p>Full Stack Developer & Entrepreneur with expertise in content strategy, UI/UX design, and digital marketing.</p>
+          <p>
+           Full Stack Developer & Entrepreneur with hands-on experience across every stage of a tech startup lifecycle — from ideation, market research, MVP development to UI/UX design, backend infrastructure,launch execution, content and digital/physical marketing strategy. Skilled in user acquisition, customer onboarding, growth hacking, and retention strategies. Proven ability to build scalable products, pivot based on feedback, and ultimately drive monetization or exit. Passionate about solving real-world problems through technology from zero to one — and beyond.
+          </p>
           <div>
-            <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>View Projects</a>
-            <a href="#contact" className="cta-secondary" onClick={(e) => scrollToSection(e, '#contact')}>Contact Me</a>
+            <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>
+              View Projects
+            </a>
+            <a href="#contact" className="cta-secondary" onClick={(e) => scrollToSection(e, '#contact')}>
+              Contact Me
+            </a>
           </div>
         </section>
 
@@ -102,26 +194,36 @@ const Portfolio = () => {
           <h2>Projects</h2>
           <div className="projects">
             <ProjectCard
+              title="PinkSync"
+              description="Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours."
+              tags={['React', 'Next.js', 'Location Services', 'Safety Tech']}
+              link="https://pinksync.onrender.com/"
+              status="complete"
+              image="/path/to/pinksync-image.jpg" // Replace with actual image path
+            />
+            <ProjectCard
               title="MyWaiter"
               description="An Indian-based technology StartUp committed to simplifying restaurant operations."
               tags={['React', 'Node.js', 'MongoDB', 'Restaurant Tech']}
               link="https://mywaiter.in"
               status="complete"
+              image="/path/to/mywaiter-image.jpg" // Replace with actual image path
             />
-                        <ProjectCard
+            <ProjectCard
               title="Skord"
               description="An AI agent that helps users make smart choices and decisions."
               tags={['React', 'AI', 'Decision Making', 'Python']}
               link="https://skord-g2rv.onrender.com"
               status="in development"
+              image="/path/to/skord-image.jpg" // Replace with actual image path
             />
-
             <ProjectCard
               title="Brandmap"
               description="A modern tool to see trending brands, shops for clothing, food, bars, events, and celebrities on a map."
               tags={['React', 'Map API', 'Social Media', 'Trends']}
               link="https://map-o7bz.onrender.com"
               status="in development"
+              image="/path/to/brandmap-image.jpg" // Replace with actual image path
             />
             <ProjectCard
               title="Ghost Brand"
@@ -129,20 +231,39 @@ const Portfolio = () => {
               tags={['UI/UX', 'Branding', 'Design System']}
               link="https://ghostbrand.onrender.com/"
               status="in development"
+              image="/path/to/ghostbrand-image.jpg" // Replace with actual image path
             />
-                        <ProjectCard
+            <ProjectCard
+              title="Gig Advance"
+              description="Instant Cash for Gig Workers"
+              tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
+              link="https://giga-483t.onrender.com/"
+              status="in development"
+              image="/path/to/gigadvance-image.jpg" // Replace with actual image path
+            />
+            <ProjectCard
+              title="Analytics Dashboard"
+              description="The Vision11 Analytics Dashboard is a demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
+              tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
+              link="https://fantasy11-3vnl.onrender.com/"
+              status="complete"
+              image="/path/to/analytics-image.jpg" // Replace with actual image path
+            />
+            <ProjectCard
               title="Nutrination.AI"
               description="A modern health management platform leveraging AI for personalized solutions."
               tags={['React', 'AI', 'Healthcare', 'Python']}
               link="https://storied-cocada-8bfcc4.netlify.app/"
               status="in development"
+              image="/path/to/nutrination-image.jpg" // Replace with actual image path
             />
-                        <ProjectCard
+            <ProjectCard
               title="drOcto"
               description="drOcto is an AI-based interactive learning platform for kids to Boost critical thinking, problem-solving, and real-world skills."
               tags={['React', 'AI', 'Development Tools', 'Automation']}
               link="https://drocto.in"
               status="complete"
+              image="/path/to/drocto-image.jpg" // Replace with actual image path
             />
           </div>
         </section>
@@ -216,17 +337,36 @@ const Portfolio = () => {
         <section id="contact">
           <h2>Get In Touch</h2>
           <p>I'm always open to discussing new projects, creative ideas, or opportunities.</p>
-          <a href="https://wa.link/pz0f28" target="_blank" rel="noopener noreferrer" className="cta">Say Hello</a>
+          <a
+            href="https://wa.link/pz0f28"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta"
+          >
+            Say Hello
+          </a>
         </section>
       </main>
 
       <footer>
         <div className="social-links">
-          <a href="#" title="LinkedIn"><FontAwesomeIcon icon={faLinkedin} /></a>
-          <a href="https://www.instagram.com/the_cassini_huygens?igsh=enVoazF3ZHRpYTQ4" target="_blank" rel="noopener noreferrer" title="Instagram">
+          <a href="#" title="LinkedIn">
+            <FontAwesomeIcon icon={faLinkedin} />
+          </a>
+          <a
+            href="https://www.instagram.com/the_cassini_huygens?igsh=enVoazF3ZHRpYTQ4"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Instagram"
+          >
             <FontAwesomeIcon icon={faInstagram} />
           </a>
-          <a href="https://wa.link/pz0f28" target="_blank" rel="noopener noreferrer" title="WhatsApp">
+          <a
+            href="https://wa.link/pz0f28"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="WhatsApp"
+          >
             <FontAwesomeIcon icon={faWhatsapp} />
           </a>
         </div>
@@ -249,7 +389,8 @@ const Portfolio = () => {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+            Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
         .portfolio {
@@ -336,7 +477,9 @@ const Portfolio = () => {
           padding: 2rem 0;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
           font-weight: 700;
           line-height: 1.2;
         }
@@ -394,6 +537,15 @@ const Portfolio = () => {
           object-fit: cover;
           border: 3px solid var(--primary);
           box-shadow: 0 0 10px rgba(0, 112, 243, 0.3);
+        }
+
+        .loading-container {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #1a1a1a;
         }
 
         .hero p {
@@ -472,6 +624,12 @@ const Portfolio = () => {
           overflow: hidden;
         }
 
+        .project-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
         .project-img::after {
           content: '';
           position: absolute;
@@ -531,12 +689,14 @@ const Portfolio = () => {
           color: white;
         }
 
-        .experience-grid, .education-grid {
+        .experience-grid,
+        .education-grid {
           display: grid;
           gap: 2rem;
         }
 
-        .experience-card, .education-card {
+        .experience-card,
+        .education-card {
           background-color: var(--card-bg);
           border-radius: 15px;
           padding: 2rem;
@@ -545,12 +705,14 @@ const Portfolio = () => {
           transition: all 0.3s ease;
         }
 
-        .experience-card:hover, .education-card:hover {
+        .experience-card:hover,
+        .education-card:hover {
           transform: translateY(-5px);
           box-shadow: 0 10px 20px var(--shadow);
         }
 
-        .experience-card::before, .education-card::before {
+        .experience-card::before,
+        .education-card::before {
           content: '';
           position: absolute;
           top: 0;
@@ -564,12 +726,14 @@ const Portfolio = () => {
           background: linear-gradient(to bottom, var(--secondary), var(--accent));
         }
 
-        .experience-card h3, .education-card h3 {
+        .experience-card h3,
+        .education-card h3 {
           font-size: 1.4rem;
           margin-bottom: 0.5rem;
         }
 
-        .experience-card h4, .education-card h4 {
+        .experience-card h4,
+        .education-card h4 {
           font-size: 1.1rem;
           font-weight: 500;
           color: var(--text-secondary);
@@ -722,11 +886,17 @@ const Portfolio = () => {
             height: 80px;
           }
 
+          .loading-container {
+            width: 80px;
+            height: 80px;
+          }
+
           .hero p {
             font-size: 1.2rem;
           }
 
-          .cta, .cta-secondary {
+          .cta,
+          .cta-secondary {
             padding: 0.8rem 2rem;
           }
 
