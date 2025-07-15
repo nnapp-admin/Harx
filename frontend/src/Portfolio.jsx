@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import Lottie from 'react-lottie';
 import UserImage from './assets/User.png';
-import Banner from './assets/Banner.jpg'; // Import Banner.jpg
 import LoadingAnimation from './assets/Loading.json';
+// Import individual project images
+import AnalyticsImage from './assets/Analytics.jpg';
+import BrandMapImage from './assets/BrandMapmap.jpg';
+import DrOctoImage from './assets/drOcto.jpg';
+import GhostBrandImage from './assets/GhostBrand.jpg';
+import GigAdvanceImage from './assets/GigAdvance.jpg';
+import MyWaiterImage from './assets/MyWaiter.jpg';
+import NutrinationImage from './assets/Nutrination.jpg';
+import PinkSyncImage from './assets/PinkSync.jpg';
+import SkordImage from './assets/Skord.jpg';
+import WifeCodeImage from './assets/WifeCode.jpg';
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isPageLoaded, setIsPageLoaded] = useState(false); // New state for page loading
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isUserImageLoaded, setIsUserImageLoaded] = useState(false);
+  const [theme, setTheme] = useState('dark'); // Default to dark mode
 
   const toggleNav = () => setIsNavOpen(!isNavOpen);
 
@@ -20,7 +31,19 @@ const Portfolio = () => {
     setIsNavOpen(false);
   };
 
-  // Lottie animation options
+  // Theme toggle function
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+  }, []);
+
   const lottieOptions = {
     loop: true,
     autoplay: true,
@@ -30,25 +53,23 @@ const Portfolio = () => {
     },
   };
 
-  // Handle page load (including UserImage and other critical assets)
   useEffect(() => {
     const img = new Image();
     img.src = UserImage;
     img.onload = () => {
       setIsUserImageLoaded(true);
-      setIsPageLoaded(true); // Set page as loaded when UserImage is ready
+      setIsPageLoaded(true);
     };
     img.onerror = () => {
       setIsUserImageLoaded(true);
-      setIsPageLoaded(true); // Handle error to avoid infinite loading
+      setIsPageLoaded(true);
     };
 
-    // Optional: Add a fallback timeout to ensure loading screen doesn't persist indefinitely
     const timeout = setTimeout(() => {
       setIsPageLoaded(true);
-    }, 5000); // 5 seconds fallback
+    }, 5000);
 
-    return () => clearTimeout(timeout); // Cleanup timeout
+    return () => clearTimeout(timeout);
   }, []);
 
   const ProjectCard = ({ title, description, tags, link, status, image }) => {
@@ -136,7 +157,6 @@ const Portfolio = () => {
     </div>
   );
 
-  // Render loading screen if page is not loaded
   if (!isPageLoaded) {
     return (
       <div className="page-loading-container">
@@ -159,9 +179,8 @@ const Portfolio = () => {
     );
   }
 
-  // Render main content once loaded
   return (
-    <div className="portfolio">
+    <div className="portfolio" data-theme={theme}>
       <header>
         <div className="logo">Harshit</div>
         <nav className={isNavOpen ? 'active' : ''}>
@@ -198,8 +217,21 @@ const Portfolio = () => {
             </li>
           </ul>
         </nav>
-        <div className="mobile-menu" onClick={toggleNav}>
-          <FontAwesomeIcon icon={isNavOpen ? faTimes : faBars} />
+        <div className="header-buttons">
+          <a
+            href="https://razorpay.me/@cassinicorp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="support-button"
+          >
+            Support Me
+          </a>
+          <div className="theme-toggle" onClick={toggleTheme}>
+            <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+          </div>
+          <div className="mobile-menu" onClick={toggleNav}>
+            <FontAwesomeIcon icon={isNavOpen ? faTimes : faBars} />
+          </div>
         </div>
       </header>
 
@@ -232,20 +264,12 @@ const Portfolio = () => {
           <h2>Projects</h2>
           <div className="projects">
             <ProjectCard
-              title="PinkSync"
-              description="Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours."
-              tags={['React', 'Next.js', 'Location Services', 'Safety Tech']}
-              link="https://pinksync.onrender.com/"
-              status="complete"
-              image={Banner}
-            />
-            <ProjectCard
               title="MyWaiter"
               description="An Indian-based technology StartUp committed to simplifying restaurant operations."
               tags={['React', 'Node.js', 'MongoDB', 'Restaurant Tech']}
               link="https://mywaiter.in"
               status="complete"
-              image={Banner}
+              image={MyWaiterImage}
             />
             <ProjectCard
               title="Skord"
@@ -253,47 +277,7 @@ const Portfolio = () => {
               tags={['React', 'AI', 'Decision Making', 'Python']}
               link="https://skord-g2rv.onrender.com"
               status="in development"
-              image={Banner}
-            />
-            <ProjectCard
-              title="Brandmap"
-              description="A modern tool to see trending brands, shops for clothing, food, bars, events, and celebrities on a map."
-              tags={['React', 'Map API', 'Social Media', 'Trends']}
-              link="https://map-o7bz.onrender.com"
-              status="in development"
-              image={Banner}
-            />
-            <ProjectCard
-              title="Ghost Brand"
-              description="An All in one solution for Personal Brands to sell anything Online"
-              tags={['UI/UX', 'Branding', 'Design System']}
-              link="https://ghostbrand.onrender.com/"
-              status="in development"
-              image={Banner}
-            />
-            <ProjectCard
-              title="Gig Advance"
-              description="Instant Cash for Gig Workers"
-              tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
-              link="https://giga-483t.onrender.com/"
-              status="in development"
-              image={Banner}
-            />
-            <ProjectCard
-              title="Analytics Dashboard"
-              description="The Vision11 Analytics Dashboard is a demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
-              tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
-              link="https://fantasy11-3vnl.onrender.com/"
-              status="complete"
-              image={Banner}
-            />
-            <ProjectCard
-              title="Nutrination.AI"
-              description="A modern health management platform leveraging AI for personalized solutions."
-              tags={['React', 'AI', 'Healthcare', 'Python']}
-              link="https://storied-cocada-8bfcc4.netlify.app/"
-              status="in development"
-              image={Banner}
+              image={SkordImage}
             />
             <ProjectCard
               title="drOcto"
@@ -301,7 +285,63 @@ const Portfolio = () => {
               tags={['React', 'AI', 'Development Tools', 'Automation']}
               link="https://drocto.in"
               status="complete"
-              image={Banner}
+              image={DrOctoImage}
+            />
+            <ProjectCard
+              title="Brandmap"
+              description="A modern tool to see trending brands, shops for clothing, food, bars, events, and celebrities on a map."
+              tags={['React', 'Map API', 'Social Media', 'Trends']}
+              link="https://map-o7bz.onrender.com"
+              status="in development"
+              image={BrandMapImage}
+            />
+            <ProjectCard
+              title="GhostBrand"
+              description="An All in one solution for Personal Brands to sell anything Online"
+              tags={['UI/UX', 'Branding', 'Design System']}
+              link="https://ghostbrand.onrender.com/"
+              status="in development"
+              image={GhostBrandImage}
+            />
+            <ProjectCard
+              title="Gig Advance"
+              description="Instant Cash for Gig Workers"
+              tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
+              link="https://giga-483t.onrender.com/"
+              status="in development"
+              image={GigAdvanceImage}
+            />
+            <ProjectCard
+              title="Analytics Dashboard"
+              description="The Vision11 Analytics Dashboard is a demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
+              tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
+              link="https://fantasy11-3vnl.onrender.com/"
+              status="complete"
+              image={AnalyticsImage}
+            />
+            <ProjectCard
+              title="PinkSync"
+              description="Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours."
+              tags={['React', 'Next.js', 'Location Services', 'Safety Tech']}
+              link="https://pinksync.onrender.com/"
+              status="complete"
+              image={PinkSyncImage}
+            />
+            <ProjectCard
+              title="Nutrination.AI"
+              description="A modern health management platform leveraging AI for personalized solutions."
+              tags={['React', 'AI', 'Healthcare', 'Python']}
+              link="https://storied-cocada-8bfcc4.netlify.app/"
+              status="in development"
+              image={NutrinationImage}
+            />
+            <ProjectCard
+              title="WifeCode"
+              description="WifeCode is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
+              tags={['React', 'Coding Assistant', 'Chatbot', 'WebApp']}
+              link="https://wifecode.onrender.com"
+              status="complete"
+              image={WifeCodeImage}
             />
           </div>
         </section>
@@ -313,7 +353,7 @@ const Portfolio = () => {
               date="May 2023 - Present"
               title="Founder & CEO"
               company="Cassini Corp"
-              description="Stealth Startup (Agentic AI)"
+              description="A group of Stealth Startups"
               tags={['Team Management', 'Fundraising', 'Strategic Planning', 'Entrepreneurship']}
             />
             <ExperienceCard
@@ -388,7 +428,12 @@ const Portfolio = () => {
 
       <footer>
         <div className="social-links">
-          <a href="#" title="LinkedIn">
+          <a
+            href="http://linkedin.com/in/harx"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="LinkedIn"
+          >
             <FontAwesomeIcon icon={faLinkedin} />
           </a>
           <a
@@ -415,12 +460,23 @@ const Portfolio = () => {
         :root {
           --primary: #0070f3;
           --secondary: #6c5ce7;
+          --accent: #00b894;
+          --shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme='dark'] {
           --bg: #0a0a0a;
           --card-bg: #111111;
           --text: #f5f5f5;
           --text-secondary: #a0a0a0;
-          --accent: #00b894;
-          --shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme='light'] {
+          --bg: #ffffff;
+          --card-bg: #f5f5f5;
+          --text: #333333;
+          --text-secondary: #666666;
+          --shadow: rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -447,7 +503,7 @@ const Portfolio = () => {
           top: 0;
           left: 0;
           right: 0;
-          background-color: rgba(10, 10, 10, 0.95);
+          background-color: var(--bg);
           backdrop-filter: blur(10px);
           z-index: 1000;
           box-shadow: 0 2px 10px var(--shadow);
@@ -503,6 +559,42 @@ const Portfolio = () => {
           color: var(--text);
         }
 
+        .theme-toggle {
+          cursor: pointer;
+          font-size: 1.5rem;
+          color: var(--text);
+          transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+          color: var(--primary);
+          transform: scale(1.1);
+        }
+
+        .header-buttons {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .support-button {
+          display: inline-block;
+          background: linear-gradient(90deg, var(--primary), var(--secondary));
+          color: white;
+          padding: 0.8rem 1.5rem;
+          border-radius: 50px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+        }
+
+        .support-button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px var(--shadow);
+          filter: brightness(1.1);
+        }
+
         main {
           max-width: 1200px;
           margin: 0 auto;
@@ -541,7 +633,7 @@ const Portfolio = () => {
           position: absolute;
           width: 60px;
           height: 4px;
-          background: linear-gradient(90deg, var(--primary), var(--secondary));
+          background: linear-gradient(90deg, travis: var(--primary), var(--secondary));
           bottom: -15px;
           left: 0;
           border-radius: 2px;
@@ -583,7 +675,7 @@ const Portfolio = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #1a1a1a;
+          background-color: var(--card-bg);
         }
 
         .hero p {
@@ -651,7 +743,7 @@ const Portfolio = () => {
         .project-img {
           width: 100%;
           height: 200px;
-          background-color: #1a1a1a;
+          background-color: var(--card-bg);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -898,6 +990,20 @@ const Portfolio = () => {
 
           .mobile-menu {
             display: block;
+          }
+
+          .header-buttons {
+            gap: 0.5rem;
+          }
+
+          .support-button {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.8rem;
+          }
+
+          .theme-toggle {
+            margin-right: 0;
+            font-size: 1.3rem;
           }
 
           h1 {
