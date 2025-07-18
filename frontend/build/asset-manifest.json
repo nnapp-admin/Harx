@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.js": "/static/js/main.6b66b747.js",
+    "main.js": "/static/js/main.35948cdd.js",
     "static/media/User.png": "/static/media/User.b3c23a6a05807b3443e8.png",
     "static/media/Nutrination.jpg": "/static/media/Nutrination.9f470eb858e950d4a9fc.jpg",
+    "static/media/WifeCode.jpg": "/static/media/WifeCode.3e7d8142b9f75c7dff01.jpg",
     "static/media/drOcto.jpg": "/static/media/drOcto.569a64a380733be4a09a.jpg",
     "static/media/GhostBrand.jpg": "/static/media/GhostBrand.9cdab816d049d4c8cf05.jpg",
     "static/media/MyWaiter.jpg": "/static/media/MyWaiter.0a9db00d1ecd18687785.jpg",
-    "static/media/WifeCode.jpg": "/static/media/WifeCode.c62913299ff784759f04.jpg",
     "static/media/GigAdvance.jpg": "/static/media/GigAdvance.ed8c0b6dfb9568141dfe.jpg",
     "static/media/PinkSync.jpg": "/static/media/PinkSync.5215d9c2834913f7b35a.jpg",
     "static/media/Skord.jpg": "/static/media/Skord.927d41fcdc72eef1ab62.jpg",
     "static/media/BrandMapmap.jpg": "/static/media/BrandMapmap.73b66dad2fe848c7de51.jpg",
     "static/media/Analytics.jpg": "/static/media/Analytics.a53c5aea2eb866df71c3.jpg",
     "index.html": "/index.html",
-    "main.6b66b747.js.map": "/static/js/main.6b66b747.js.map"
+    "main.35948cdd.js.map": "/static/js/main.35948cdd.js.map"
   },
   "entrypoints": [
-    "static/js/main.6b66b747.js"
+    "static/js/main.35948cdd.js"
   ]
 }

@@ -15,7 +15,7 @@ import MyWaiterImage from './assets/MyWaiter.jpg';
 import NutrinationImage from './assets/Nutrination.jpg';
 import PinkSyncImage from './assets/PinkSync.jpg';
 import SkordImage from './assets/Skord.jpg';
-import WifeCodeImage from './assets/WifeCode.jpg';
+import KonarkImage from './assets/WifeCode.jpg';
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -336,12 +336,12 @@ const Portfolio = () => {
               image={NutrinationImage}
             />
             <ProjectCard
-              title="WifeCode"
-              description="WifeCode is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
+              title="Konark"
+              description="Konark is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
               tags={['React', 'Coding Assistant', 'Chatbot', 'WebApp']}
-              link="https://wifecode.onrender.com"
+              link="https://konark.onrender.com"
               status="complete"
-              image={WifeCodeImage}
+              image={KonarkImage}
             />
           </div>
         </section>
