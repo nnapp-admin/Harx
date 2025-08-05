@@ -263,7 +263,7 @@ const Portfolio = () => {
               title="FounderCult"
               description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together."
               tags={['React', 'Next.js', 'AWS', 'Next.Js']}
-              link="https://megheza.com/"
+              link="https://foundercult.com/"
               status="complete"
               image={FounderImage}
             />
