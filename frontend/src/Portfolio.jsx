@@ -16,6 +16,8 @@ import NutrinationImage from './assets/Nutrination.jpg';
 import PinkSyncImage from './assets/PinkSync.jpg';
 import SkordImage from './assets/Skord.jpg';
 import KonarkImage from './assets/WifeCode.jpg';
+import FounderImage from './assets/Foundercult.jpg';
+import MeghezaImage from './assets/Megheza.jpg';
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -242,13 +244,7 @@ const Portfolio = () => {
             <h1>Hello, I'm Harx</h1>
           </div>
           <p>
-            Full Stack Developer & Entrepreneur with hands-on experience across every stage of a tech
-            startup lifecycle — from ideation, market research, MVP development to UI/UX design,
-            backend infrastructure, launch execution, content and digital/physical marketing strategy.
-            Skilled in user acquisition, customer onboarding, growth hacking, and retention strategies.
-            Proven ability to build scalable products, pivot based on feedback, and ultimately drive
-            monetization or exit. Passionate about solving real-world problems through technology from
-            zero to one — and beyond.
+           Full Stack Developer & Entrepreneur with hands-on experience across multiple stages of a tech startup lifecycle — from ideation, market research, and MVP development to UI/UX design, frontend and backend infrastructure, database management, launch execution, and digital/physical marketing strategy. Proficient in user acquisition, customer onboarding, growth hacking, and leveraging customer and market data for informed, data-driven decisions and retention strategies. Passionate about solving real-world problems with an ambitious team, using technology to build from zero to one — and beyond.
           </p>
           <div>
             <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>
@@ -263,6 +259,14 @@ const Portfolio = () => {
         <section id="projects">
           <h2>Projects</h2>
           <div className="projects">
+            <ProjectCard
+              title="FounderCult"
+              description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together."
+              tags={['React', 'Next.js', 'AWS', 'Next.Js']}
+              link="https://megheza.com/"
+              status="complete"
+              image={FounderImage}
+            />
             <ProjectCard
               title="MyWaiter"
               description="An Indian-based technology StartUp committed to simplifying restaurant operations."
@@ -313,7 +317,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Analytics Dashboard"
-              description="The Vision11 Analytics Dashboard is a demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
+              description="Refresh it again & again as the backend takes around 50 seconds to start due to free host plan. A demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
               tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
               link="https://fantasy11-3vnl.onrender.com/"
               status="complete"
@@ -336,6 +340,14 @@ const Portfolio = () => {
               image={NutrinationImage}
             />
             <ProjectCard
+              title="Megheza"
+              description="Global Professional Network for Verified Journalists to connect collaborate and Grow"
+              tags={['React', 'Next.js', 'AWS', 'Next.Js']}
+              link="https://megheza.com/"
+              status="complete"
+              image={MeghezaImage}
+            />
+            <ProjectCard
               title="Konark"
               description="Konark is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
               tags={['React', 'Coding Assistant', 'Chatbot', 'WebApp']}
@@ -350,11 +362,25 @@ const Portfolio = () => {
           <h2>Experience</h2>
           <div className="experience-grid">
             <ExperienceCard
-              date="May 2023 - Present"
-              title="Founder & CEO"
-              company="Cassini Corp"
-              description="A group of Stealth Startups"
-              tags={['Team Management', 'Fundraising', 'Strategic Planning', 'Entrepreneurship']}
+              date="Jan 2025 - Present"
+              title="SDE"
+              company="AM Megheza"
+              description="Global Professional Network for Verified Journalists. Founding Engineer. I was hired for Designing, building, updating, and maintaining the Company’s website and web applications—both front-end and back-end functionality— ensuring responsiveness, interactivity, and compatibility across devices and platforms. Hosting and Server Management: Configuring and managing web hosting, server infrastructure, domain integration, and deployment environments, including implementation of security patches and SSL certifications. Technical Operations: Maintaining updated records of system logs, documenting development processes, version control repositories, and carrying out regular data backups to ensure uninterrupted operations. "
+              tags={['Full Stack Development', 'AWS' , 'Team Collaboration']}
+            />
+            <ExperienceCard
+              date="March 2025 - Present"
+              title="Founder"
+              company="Dcocto"
+              description="Pioneering a child-friendly AI ecosystem designed to enhance how kids interact with technology—intelligently, safely, and purposefully. Our goal is to create an AI-powered platform that offers brain-positive digital experiences tailored specifically for children, combining education, engagement, and ethical tech usage."
+              tags={['Full Stack Webb Development','Team Management', 'Strategic Planning', 'Entrepreneurship']}
+            />
+            <ExperienceCard
+              date="Aug 2024 - Present"
+              title="Founder"
+              company="MyWaiter"
+              description="A full-stack web application that allows diners to scan a table-specific QR code, view the live menu, place orders, and even pay — all without downloading any app or calling a waiter. The system allowed restaurant staff to: Receive real-time order notifications from any table Update menus instantly (out-of-stock, time-based items, etc.) Reduce wait times and optimize staff resources. Increase the Average Order Value by pushing items using ML."
+              tags={['Full Stack Webb Development','Team Management', 'Strategic Planning', 'Entrepreneurship']}
             />
             <ExperienceCard
               date="Oct 2022 - May 2024"
@@ -395,7 +421,7 @@ const Portfolio = () => {
           <div className="skills">
             <SkillCategory
               title="Development"
-              skills={['Python', 'JavaScript', 'React', 'Node.js', 'MongoDB', 'SQL', 'HTML/CSS', 'Git']}
+              skills={['Python', 'JavaScript', 'React', 'Node.js', 'Next.js', 'MongoDB', 'AWS', "Google Cloud", 'SQL', 'HTML/CSS', 'Git', 'OPEN AI SDK',"xAI SDK","Gemini SDK", "Kotlin & AndroidStudio(VibeCoding)"]}
             />
             <SkillCategory
               title="Data Science"
