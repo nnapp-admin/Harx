@@ -18,6 +18,8 @@ import SkordImage from './assets/Skord.jpg';
 import KonarkImage from './assets/WifeCode.jpg';
 import FounderImage from './assets/Foundercult.jpg';
 import MeghezaImage from './assets/Megheza.jpg';
+import SalescatImage from './assets/Salescat.jpg';
+
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -241,7 +243,7 @@ const Portfolio = () => {
         <section id="home" className="hero">
           <div className="hero-content">
             <img src={UserImage} alt="Harx" className="user-image" />
-            <h1>Hello, I'm Harx</h1>
+            <h1>Hello, I'm Harshit</h1>
           </div>
           <p>
            Full Stack Developer & Entrepreneur with hands-on experience across multiple stages of a tech startup lifecycle — from ideation, market research, and MVP development to UI/UX design, frontend and backend infrastructure, database management, launch execution, and digital/physical marketing strategy. Proficient in user acquisition, customer onboarding, growth hacking, and leveraging customer and market data for informed, data-driven decisions and retention strategies. Passionate about solving real-world problems with an ambitious team, using technology to build from zero to one — and beyond.
@@ -260,9 +262,17 @@ const Portfolio = () => {
           <h2>Projects</h2>
           <div className="projects">
             <ProjectCard
+              title="SalesCat"
+              description="AI Sales Agent - Trained to Sell Like a true Salesman!"
+              tags={['React', 'TypeScript', 'AWS', 'GPT-OSS']}
+              link="https://salescat.org/"
+              status="complete"
+              image={SalescatImage}
+            />
+            <ProjectCard
               title="FounderCult"
               description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together."
-              tags={['React', 'Next.js', 'AWS', 'Next.Js']}
+              tags={['React', 'AWS', 'Next.Js']}
               link="https://foundercult.com/"
               status="complete"
               image={FounderImage}
