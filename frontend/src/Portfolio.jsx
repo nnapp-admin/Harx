@@ -19,6 +19,8 @@ import KonarkImage from './assets/WifeCode.jpg';
 import FounderImage from './assets/Foundercult.jpg';
 import MeghezaImage from './assets/Megheza.jpg';
 import SalescatImage from './assets/Salescat.jpg';
+import StarlookImage from './assets/Starlook.jpg';
+
 
 
 const Portfolio = () => {
@@ -270,6 +272,14 @@ const Portfolio = () => {
               image={SalescatImage}
             />
             <ProjectCard
+              title="StarLook"
+              description="Experiment with outfits, keep your wardrobe organized, buy your favorites, and showcase your style to the world."
+              tags={['React', 'AWS', 'Next.Js', 'Gemini']}
+              link="https://studio--virtual-vogue-z1mz4.us-central1.hosted.app/"
+              status="complete"
+              image={StarlookImage}
+            />
+            <ProjectCard
               title="FounderCult"
               description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together."
               tags={['React', 'AWS', 'Next.Js']}
@@ -289,8 +299,8 @@ const Portfolio = () => {
               title="Skord"
               description="An AI agent that helps users make smart choices and decisions."
               tags={['React', 'AI', 'Decision Making', 'Python']}
-              link="https://skord-g2rv.onrender.com"
-              status="in development"
+              link="https://skordai--skord-73f11.asia-east1.hosted.app/"
+              status="complete"
               image={SkordImage}
             />
             <ProjectCard
