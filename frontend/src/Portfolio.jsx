@@ -299,7 +299,7 @@ const Portfolio = () => {
               title="Skord"
               description="An AI agent that helps users make smart choices and decisions."
               tags={['React', 'AI', 'Decision Making', 'Python']}
-              link="https://skordai--skord-73f11.asia-east1.hosted.app/"
+              link="https://skord.club/"
               status="complete"
               image={SkordImage}
             />
