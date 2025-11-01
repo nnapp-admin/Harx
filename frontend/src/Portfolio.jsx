@@ -7,6 +7,7 @@ import UserImage from './assets/User.png';
 import LoadingAnimation from './assets/Loading.json';
 // Import individual project images
 import AnalyticsImage from './assets/Analytics.jpg';
+import ScribingImage from './assets/scribing.jpg';
 import BrandMapImage from './assets/BrandMapmap.jpg';
 import DrOctoImage from './assets/drOcto.jpg';
 import GhostBrandImage from './assets/GhostBrand.jpg';
@@ -263,6 +264,14 @@ const Portfolio = () => {
         <section id="projects">
           <h2>Projects</h2>
           <div className="projects">
+            <ProjectCard
+              title="Scribing"
+              description="Our AI listens, transcribes, and structures every consultation into ready-to-use medical templates — instantly."
+              tags={['React', 'TypeScript', 'AWS', 'Speech Recognition']}
+              link="https://scribing.io"
+              status="complete"
+              image={ScribingImage}
+            />
             <ProjectCard
               title="SalesCat"
               description="AI Sales Agent - Trained to Sell Like a true Salesman!"
