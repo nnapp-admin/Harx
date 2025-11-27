@@ -400,7 +400,7 @@ const Portfolio = () => {
             <ExperienceCard
               date="March 2025 - Present"
               title="Founder"
-              company="Dcocto"
+              company="Drocto"
               description="Pioneering a child-friendly AI ecosystem designed to enhance how kids interact with technology—intelligently, safely, and purposefully. Our goal is to create an AI-powered platform that offers brain-positive digital experiences tailored specifically for children, combining education, engagement, and ethical tech usage."
               tags={['Full Stack Webb Development','Team Management', 'Strategic Planning', 'Entrepreneurship']}
             />
