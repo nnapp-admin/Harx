@@ -249,8 +249,7 @@ const Portfolio = () => {
             <h1>Hello, I'm Harshit</h1>
           </div>
           <p>
-           Full Stack Developer & Entrepreneur with hands-on experience across multiple stages of a tech startup lifecycle — from ideation, market research, and MVP development to UI/UX design, frontend and backend infrastructure, database management, launch execution, and digital/physical marketing strategy. Proficient in user acquisition, customer onboarding, growth hacking, and leveraging customer and market data for informed, data-driven decisions and retention strategies. Passionate about solving real-world problems with an ambitious team, using technology to build from zero to one — and beyond.
-          </p>
+         Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.          </p>
           <div>
             <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>
               View Projects
@@ -266,7 +265,7 @@ const Portfolio = () => {
           <div className="projects">
             <ProjectCard
               title="Scribing"
-              description="Our AI listens, transcribes, and structures every consultation into ready-to-use medical templates — instantly."
+              description="AI-powered medical documentation system that listens to consultations, performs speech-to-text processing, extracts medical entities, and converts them into structured clinical templates. Uses RAG validation, domain-tuned LLM prompts, and physician-style formatting for accuracy and compliance."
               tags={['React', 'TypeScript', 'AWS', 'Speech Recognition', 'GPT-OSS', 'Gemma']}
               link="https://scribing.io"
               status="complete"
@@ -274,7 +273,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="SalesCat"
-              description="AI Sales Agent - Trained to Sell Like a true Salesman!"
+              description="A Text based AI sales agent trained to mimic high-performing sales reps. Uses LLM reasoning, objection-handling flows, tone adaptation, and CRM-style structured outputs to close leads automatically."
               tags={['React', 'TypeScript', 'AWS', 'GPT-OSS']}
               link="https://salescat.org/"
               status="complete"
@@ -282,7 +281,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="StarLook"
-              description="Experiment with outfits, keep your wardrobe organized, buy your favorites, and showcase your style to the world."
+              description="Virtual wardrobe and styling assistant using multimodal embeddings, image processing, and AI-powered outfit recommendations. Users can upload clothing, generate looks, and explore trends with real-time product mapping."
               tags={['React', 'AWS', 'Next.Js', 'Gemini']}
               link="https://studio--virtual-vogue-z1mz4.us-central1.hosted.app/"
               status="complete"
@@ -290,7 +289,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="FounderCult"
-              description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together."
+              description="A unified ecosystem where startup founders access tools, vetted service providers, community discussions, and collaboration channels. Built with role-based access, modular UI components, and scalable server architecture."
               tags={['React', 'AWS', 'Next.Js']}
               link="https://foundercult.com/"
               status="complete"
@@ -298,7 +297,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="MyWaiter"
-              description="An Indian-based technology StartUp committed to simplifying restaurant operations."
+              description="QR-based restaurant automation platform enabling real-time ordering, live menu sync, staff dashboards, and ML-powered upsell suggestions. Designed to reduce service friction and increase order value."
               tags={['React', 'Node.js', 'MongoDB', 'Restaurant Tech']}
               link="https://mywaiter.in"
               status="complete"
@@ -306,7 +305,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Skord"
-              description="An AI agent that helps users make smart choices and decisions."
+              description="A reasoning-based AI decision agent that evaluates multiple options, compares outcomes, and generates structured recommendations using multi-step thought processes and confidence scoring."
               tags={['React', 'AI', 'Decision Making', 'Python']}
               link="https://skord.club/"
               status="complete"
@@ -314,7 +313,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="drOcto"
-              description="drOcto is an AI-based interactive learning platform for kids to Boost critical thinking, problem-solving, and real-world skills."
+              description="Interactive AI learning environment for kids with safety guardrails, adaptive difficulty, feedback loops, and gamified reinforcement systems — designed to build critical thinking and real-world reasoning ability."
               tags={['React', 'AI', 'Development Tools', 'Automation']}
               link="https://drocto.in"
               status="complete"
@@ -322,7 +321,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Brandmap"
-              description="A modern tool to see trending brands, shops for clothing, food, bars, events, and celebrities on a map."
+              description="A visual discovery platform that maps trending businesses, celebrities, and hotspots using geo-indexed data, API scraping, and real-time ranking algorithms to track popularity and local engagement patterns."
               tags={['React', 'Map API', 'Social Media', 'Trends']}
               link="https://map-o7bz.onrender.com"
               status="in development"
@@ -338,7 +337,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Gig Advance"
-              description="Instant Cash for Gig Workers"
+              description="Fintech platform that verifies identity using Aadhaar, Links bank account using SETU API, analyzes earnings history, and provides instant advance payouts to gig workers through automated underwriting and risk modeling."
               tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
               link="https://giga-483t.onrender.com/"
               status="in development"
@@ -362,7 +361,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Nutrination.AI"
-              description="A modern health management platform leveraging AI for personalized solutions."
+              description="AI-driven health assistant offering personalized nutrition guidance, daily routines, risk scores, and habit reinforcement using user health data, behavior modeling, and LLM reasoning"
               tags={['React', 'AI', 'Healthcare', 'Python']}
               link="https://storied-cocada-8bfcc4.netlify.app/"
               status="in development"
@@ -378,7 +377,7 @@ const Portfolio = () => {
             />
             <ProjectCard
               title="Konark"
-              description="Konark is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
+              description="Coding companion capable of repo generation, code completion, debugging assistance, and project scaffolding — powered by LLMs, embeddings, and streaming response architecture."
               tags={['React', 'Coding Assistant', 'GPT-OSS', 'WebApp']}
               link="https://konark.onrender.com"
               status="complete"
