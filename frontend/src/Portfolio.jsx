@@ -267,7 +267,7 @@ const Portfolio = () => {
             <ProjectCard
               title="Scribing"
               description="Our AI listens, transcribes, and structures every consultation into ready-to-use medical templates — instantly."
-              tags={['React', 'TypeScript', 'AWS', 'Speech Recognition']}
+              tags={['React', 'TypeScript', 'AWS', 'Speech Recognition', 'GPT-OSS', 'Gemma']}
               link="https://scribing.io"
               status="complete"
               image={ScribingImage}
@@ -379,7 +379,7 @@ const Portfolio = () => {
             <ProjectCard
               title="Konark"
               description="Konark is your free coding partner. Brainstorm ideas, generate full repos, and download your codebase to build anywhere — no limits, just code."
-              tags={['React', 'Coding Assistant', 'Chatbot', 'WebApp']}
+              tags={['React', 'Coding Assistant', 'GPT-OSS', 'WebApp']}
               link="https://konark.onrender.com"
               status="complete"
               image={KonarkImage}
@@ -450,11 +450,11 @@ const Portfolio = () => {
           <div className="skills">
             <SkillCategory
               title="Development"
-              skills={['Python', 'JavaScript', 'React', 'Node.js', 'Next.js', 'MongoDB', 'AWS', "Google Cloud", 'SQL', 'HTML/CSS', 'Git', 'OPEN AI SDK',"xAI SDK","Gemini SDK", "Kotlin & AndroidStudio(VibeCoding)"]}
+              skills={['Python', 'JavaScript', 'React', 'Node.js', 'Next.js', 'MongoDB', 'AWS','GCP', 'SQL', 'Anthropic SDK', 'CI/CD', 'OPEN AI SDK',"xAI SDK","Gemini SDK", "Kotlin & AndroidStudio(VibeCoding)"]}
             />
             <SkillCategory
-              title="Data Science"
-              skills={['Data Analytics', 'Machine Learning', 'Database Management', 'Data Visualization']}
+              title="Data Science & AI"
+              skills={['Data Analytics', 'Machine Learning', 'Database Management', 'Data Visualization', 'Fine Tuning', 'Vector Databses', 'RAG pipeline', 'Ollama', 'HuggingFace', 'LangChain']}
             />
             <SkillCategory
               title="Design"
