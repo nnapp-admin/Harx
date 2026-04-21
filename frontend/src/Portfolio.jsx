@@ -504,7 +504,7 @@ const Portfolio = () => {
       window.removeEventListener('resize', resize);
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [theme]);
+  }, [theme, isPageLoaded]);
 
 
   // Scroll progress + active section + reveal
@@ -1058,7 +1058,7 @@ const Portfolio = () => {
         .proj-card,.exp-card,.edu-card,.skill-card {
           position:relative; overflow:hidden;
           background:var(--card); border:1px solid var(--border); border-radius:20px;
-          transform-style:preserve-3d; will-change:transform;
+          will-change:transform; isolation:isolate;
           transition:border-color .3s, box-shadow .3s;
         }
         .proj-card:hover,.exp-card:hover,.edu-card:hover,.skill-card:hover {
@@ -1094,7 +1094,7 @@ const Portfolio = () => {
           grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
           gap:1.4rem;
         }
-        .proj-img { position:relative; height:205px; overflow:hidden; }
+        .proj-img { position:relative; height:205px; overflow:hidden; border-radius:20px 20px 0 0; }
         .proj-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
         .proj-card:hover .proj-img img { transform:scale(1.06); }
         .proj-overlay {
