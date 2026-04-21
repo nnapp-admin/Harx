@@ -959,7 +959,7 @@ const Portfolio = () => {
         }
 
         /* Avatar */
-        .avatar-wrap { position:relative; width:130px; height:130px; flex-shrink:0; }
+        .avatar-wrap { position:relative; width:105px; height:105px; flex-shrink:0; }
         .avatar-ring {
           position:absolute; inset:-9px; border-radius:50%;
           background:conic-gradient(var(--blue),var(--purple),var(--teal),var(--blue));
@@ -1238,7 +1238,7 @@ const Portfolio = () => {
         @media(max-width:480px){
           .hero-name { font-size:2.8rem; letter-spacing:-1.5px; }
           .hero-role  { font-size:1.1rem; }
-          .avatar-wrap { width:100px; height:100px; }
+          .avatar-wrap { width:82px; height:82px; }
           .sec-hdr h2 { font-size:1.8rem; }
         }
       `}</style>
