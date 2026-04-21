@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import Lottie from 'react-lottie';
-import UserImage from './assets/User.png';
+import UserImage from './assets/User.jpg';
 import LoadingAnimation from './assets/Loading.json';
 // Import individual project images
 import AnalyticsImage from './assets/Analytics.jpg';
@@ -21,6 +21,10 @@ import FounderImage from './assets/Foundercult.jpg';
 import MeghezaImage from './assets/Megheza.jpg';
 import SalescatImage from './assets/Salescat.jpg';
 import StarlookImage from './assets/Starlook.jpg';
+import VoiceImage from './assets/Voicecopilotai.jpg';
+import DecodeImage from './assets/19decode.jpg';
+import FacilityImage from './assets/Facility19.jpg';
+import PostgirlImage from './assets/Postgirl.jpg';
 
 
 
@@ -272,6 +276,38 @@ const Portfolio = () => {
               image={ScribingImage}
             />
             <ProjectCard
+              title="VoiceCopilot"
+              description="Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7."
+              tags={['React', 'TypeScript', 'AWS', 'Voice Agent', 'Agentic AI']}
+              link="https://voicecopilotai.com"
+              status="complete"
+              image={VoiceImage}
+            />
+            <ProjectCard
+              title="19Decode"
+              description="Sports prediction platform powered by custom machine learning models that analyze historical data, player performance, and real-time match factors to generate accurate game insights and outcome forecasts. Designed for data-driven decision-making with a fast, intuitive interface."
+              tags={['React', 'TypeScript', 'AWS', 'Machine Learning', 'Data Analytics', 'Predictive Modeling', 'Sports Tech']}
+              link="https://app.19decode.com"
+              status="complete"
+              image={DecodeImage}
+            />
+            <ProjectCard
+              title="Facility19"
+              description="AI-powered facility management platform that automates operations such as scheduling, dispatch, vendor coordination, and resident communication. Built to streamline workflows, centralize data, and replace manual systems with intelligent, scalable infrastructure for modern property and facility teams."
+              tags={['React', 'TypeScript', 'AWS', 'AI Automation', 'Workflow Management', 'Operations Tech', 'SaaS']}
+              link="https://facility19.com"
+              status="complete"
+              image={FacilityImage}
+            />
+            <ProjectCard
+              title="PostGirl"
+              description="AI-powered content generation and publishing tool designed to help users create, refine, and share social media posts effortlessly. Focused on speed and simplicity, it combines intuitive UI with smart text generation to streamline the content creation workflow from idea to publish."
+              tags={['React', 'TypeScript', 'AWS', 'Agentic AI']}
+              link="https://post-girl.vercel.app/"
+              status="complete"
+              image={PostgirlImage}
+            />
+            <ProjectCard
               title="SalesCat"
               description="A Text based AI sales agent trained to mimic high-performing sales reps. Uses LLM reasoning, objection-handling flows, tone adaptation, and CRM-style structured outputs to close leads automatically."
               tags={['React', 'TypeScript', 'AWS', 'GPT-OSS']}
@@ -389,6 +425,41 @@ const Portfolio = () => {
         <section id="experience">
           <h2>Experience</h2>
           <div className="experience-grid">
+            <ExperienceCard
+              date="Feb 2026 - Present"
+              title="AI Engineer"
+              company="WeLaunch · Full-time · Remote"
+              description="Building full-stack and agentic AI systems at WeLaunch, contributing across the entire product lifecycle — from backend architecture and API integrations to deploying LLM-powered workflows and automation pipelines."
+              tags={['Full Stack Development', 'Agentic AI', 'LLMs', 'API Integration', 'Automation']}
+            />
+            <ExperienceCard
+              date="Jan 2026 - Feb 2026"
+              title="AI Engineer Intern"
+              company="Vela (YC W26) · Remote"
+              description="Vela is a Y Combinator-backed AI assistant that helps people schedule meetings effortlessly — no back-and-forth, no chaos. She books interviews, coordinates across clients & candidates, and handles the back-and-forth so you don't have to."
+              tags={['Agentic AI', 'Scheduling Automation', 'LLMs', 'YC W26']}
+            />
+            <ExperienceCard
+              date="Dec 2025 - Present"
+              title="Co-Founder"
+              company="VoiceCopilot AI"
+              description="Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7. Built the core voice agentic infrastructure, real-time call handling pipelines, and business integration layer."
+              tags={['Voice AI', 'Agentic AI', 'Early Stage Ventures', 'Full Stack Development', 'Entrepreneurship']}
+            />
+            <ExperienceCard
+              date="Aug 2025 - Present"
+              title="Co-Founder"
+              company="Scribing · Part-time · Remote"
+              description="Our AI listens to every consultation, transcribes it in real time, and instantly converts it into structured, ready-to-use medical templates, while intelligently evaluating ICD-10 codes. Built the speech-to-text pipeline, LLM-based medical entity extraction, and clinical template generation system."
+              tags={['AI Medical Scribe', 'Speech Recognition', 'LLMs', 'Healthcare Tech', 'Entrepreneurship']}
+            />
+            <ExperienceCard
+              date="May 2025 - Present"
+              title="Member"
+              company="FounderCult · Part-time · India"
+              description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together. Active contributor in a founder ecosystem providing resources, vetted services, and collaboration channels for early-stage startups."
+              tags={['Start-up Ventures', 'MERN Stack', 'Community Building', 'Entrepreneurship']}
+            />
             <ExperienceCard
               date="Jan 2025 - Present"
               title="SDE"
