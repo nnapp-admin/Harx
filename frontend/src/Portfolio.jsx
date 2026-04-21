@@ -359,7 +359,6 @@ const Portfolio = () => {
 
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const mouseRef = useRef({ x: -9999, y: -9999 });
 
   // Load theme
   useEffect(() => {
@@ -378,14 +377,13 @@ const Portfolio = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Canvas particle network
+  // Canvas space animation — stars + comets
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    const isDark = theme === 'dark';
     const isMobile = window.innerWidth < 768;
-    const COUNT = isMobile ? 55 : 130;
-    const LINK_DIST = isMobile ? 0 : 140;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -394,54 +392,98 @@ const Portfolio = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    const particles = Array.from({ length: COUNT }, () => ({
+    const STAR_COUNT = isMobile ? 120 : 280;
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      r: Math.random() * 1.8 + 0.4,
-      hue: Math.random() > 0.55 ? 213 : 260,
-      opacity: Math.random() * 0.55 + 0.25,
+      r: Math.random() * 1.5 + 0.3,
+      baseOpacity: Math.random() * 0.55 + 0.25,
+      twinkleSpeed: Math.random() * 0.018 + 0.004,
+      twinklePhase: Math.random() * Math.PI * 2,
+      hue: [210, 220, 260, 180][Math.floor(Math.random() * 4)],
     }));
+
+    const comets = [];
+    let frame = 0;
+    let nextCometAt = 60 + Math.floor(Math.random() * 100);
+
+    const spawnComet = () => {
+      const speed = 5 + Math.random() * 5;
+      const angle = Math.PI / 4 + (Math.random() - 0.5) * (Math.PI / 4);
+      comets.push({
+        x: Math.random() * canvas.width * 0.7,
+        y: Math.random() * canvas.height * 0.4,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.007 + Math.random() * 0.005,
+        len: 80 + Math.random() * 130,
+        w: 1.2 + Math.random() * 0.9,
+        hue: Math.random() > 0.5 ? 210 : 260,
+      });
+    };
 
     const tick = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
 
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        const dx = p.x - mouseRef.current.x;
-        const dy = p.y - mouseRef.current.y;
-        const d = Math.hypot(dx, dy);
-        if (d < 110 && d > 0) { p.x += (dx / d) * 1.8; p.y += (dy / d) * 1.8; }
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+      stars.forEach((s) => {
+        const opacity = s.baseOpacity * (0.55 + 0.45 * Math.sin(frame * s.twinkleSpeed + s.twinklePhase));
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue},90%,65%,${p.opacity})`;
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = isDark
+          ? `hsla(${s.hue},70%,88%,${opacity})`
+          : `hsla(${s.hue},60%,32%,${opacity * 0.55})`;
         ctx.fill();
+
+        if (s.r > 1.1) {
+          const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.5);
+          g.addColorStop(0, isDark ? `hsla(${s.hue},80%,90%,${opacity * 0.35})` : `hsla(${s.hue},70%,35%,${opacity * 0.18})`);
+          g.addColorStop(1, 'transparent');
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = g;
+          ctx.fill();
+        }
       });
 
-      if (LINK_DIST > 0) {
-        for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const d = Math.hypot(dx, dy);
-            if (d < LINK_DIST) {
-              const a = (1 - d / LINK_DIST) * 0.22;
-              ctx.beginPath();
-              ctx.moveTo(particles[i].x, particles[i].y);
-              ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(0,112,243,${a})`;
-              ctx.lineWidth = 0.7;
-              ctx.stroke();
-            }
-          }
-        }
+      if (frame >= nextCometAt) {
+        spawnComet();
+        nextCometAt = frame + 200 + Math.floor(Math.random() * 160);
       }
+
+      for (let i = comets.length - 1; i >= 0; i--) {
+        const c = comets[i];
+        c.x += c.vx;
+        c.y += c.vy;
+        c.life -= c.decay;
+        if (c.life <= 0 || c.x > canvas.width + 300 || c.y > canvas.height + 300) {
+          comets.splice(i, 1);
+          continue;
+        }
+        const norm = Math.hypot(c.vx, c.vy);
+        const tx = c.x - (c.vx / norm) * c.len;
+        const ty = c.y - (c.vy / norm) * c.len;
+        const g = ctx.createLinearGradient(c.x, c.y, tx, ty);
+        g.addColorStop(0, isDark ? `hsla(${c.hue},100%,92%,${c.life})` : `hsla(${c.hue},100%,42%,${c.life * 0.75})`);
+        g.addColorStop(0.4, isDark ? `hsla(${c.hue},85%,75%,${c.life * 0.5})` : `hsla(${c.hue},85%,38%,${c.life * 0.35})`);
+        g.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.moveTo(c.x, c.y);
+        ctx.lineTo(tx, ty);
+        ctx.strokeStyle = g;
+        ctx.lineWidth = c.w * c.life;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 6);
+        hg.addColorStop(0, isDark ? `hsla(${c.hue},100%,96%,${c.life})` : `hsla(${c.hue},100%,48%,${c.life * 0.8})`);
+        hg.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = hg;
+        ctx.fill();
+      }
+
       animRef.current = requestAnimationFrame(tick);
     };
     tick();
@@ -450,14 +492,8 @@ const Portfolio = () => {
       window.removeEventListener('resize', resize);
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, []);
+  }, [theme]);
 
-  // Mouse tracking for particle repulsion
-  useEffect(() => {
-    const onMove = (e) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
-  }, []);
 
   // Scroll progress + active section + reveal
   useEffect(() => {
@@ -554,17 +590,6 @@ const Portfolio = () => {
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <header className="hdr">
         <div className="hdr-logo">Portfolio</div>
-        <nav className={`hdr-nav${isNavOpen ? ' open' : ''}`}>
-          <ul>
-            {NAV.map((id) => (
-              <li key={id}>
-                <a href={`#${id}`} className={activeSection === id ? 'active' : ''} onClick={(e) => scrollTo(e, `#${id}`)}>
-                  {id.charAt(0).toUpperCase() + id.slice(1)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
         <div className="hdr-right">
           <a href="https://razorpay.me/@cassinicorp" target="_blank" rel="noopener noreferrer" className="support-btn">
             Support Me
@@ -577,15 +602,22 @@ const Portfolio = () => {
           </button>
         </div>
       </header>
+      <nav className={`hdr-nav${isNavOpen ? ' open' : ''}`}>
+        <ul>
+          {NAV.map((id) => (
+            <li key={id}>
+              <a href={`#${id}`} className={activeSection === id ? 'active' : ''} onClick={(e) => scrollTo(e, `#${id}`)}>
+                {id.charAt(0).toUpperCase() + id.slice(1)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <main className="pf-main">
 
         {/* ══ HERO ═════════════════════════════════════════════════════════ */}
         <section id="home" className="hero">
-          <div className="blob blob-1" />
-          <div className="blob blob-2" />
-          <div className="blob blob-3" />
-
           <div className="hero-inner">
             <div className="avatar-wrap">
               <div className="avatar-ring" />
@@ -785,7 +817,7 @@ const Portfolio = () => {
         .pf-canvas {
           position:fixed; top:0; left:0;
           width:100%; height:100%;
-          z-index:0; pointer-events:none; opacity:.55;
+          z-index:0; pointer-events:none; opacity:1;
         }
 
         /* Scroll progress */
@@ -810,12 +842,14 @@ const Portfolio = () => {
         [data-theme='light'] .hdr { background:rgba(240,244,248,.84); }
 
         .hdr-logo {
-          font-weight:900; font-size:1.55rem; letter-spacing:-.5px;
-          background:linear-gradient(135deg,var(--blue),var(--purple));
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-          background-clip:text; cursor:default; user-select:none;
+          font-weight:400; font-size:1.55rem; letter-spacing:-.5px;
+          color:var(--text); cursor:default; user-select:none; pointer-events:none;
         }
 
+        .hdr-nav {
+          position:fixed; top:0; left:50%; transform:translateX(-50%);
+          display:flex; align-items:center; height:64px; z-index:999;
+        }
         .hdr-nav ul { display:flex; list-style:none; gap:.15rem; }
         .hdr-nav ul li a {
           display:block; padding:.48rem .9rem;
@@ -860,10 +894,8 @@ const Portfolio = () => {
         /* Section header */
         .sec-hdr { margin-bottom:3.5rem; }
         .sec-hdr h2 {
-          font-size:clamp(2rem,5vw,3.2rem); font-weight:900; letter-spacing:-1.5px;
-          background:linear-gradient(135deg,var(--text) 0%,var(--muted) 100%);
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-          background-clip:text; margin-bottom:.4rem;
+          font-size:clamp(2rem,5vw,3.2rem); font-weight:400; letter-spacing:-1.5px;
+          color:var(--text); margin-bottom:.4rem;
         }
         .sec-sub { color:var(--muted); font-size:1.05rem; }
 
@@ -887,31 +919,6 @@ const Portfolio = () => {
           padding-top:6rem; overflow:hidden;
         }
 
-        /* Ambient blobs */
-        .blob { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; }
-        .blob-1 {
-          width:600px; height:600px;
-          background:radial-gradient(circle,rgba(0,112,243,.15),transparent 70%);
-          top:-10%; left:-10%;
-          animation:blobDrift 14s ease-in-out infinite;
-        }
-        .blob-2 {
-          width:500px; height:500px;
-          background:radial-gradient(circle,rgba(108,92,231,.12),transparent 70%);
-          bottom:-5%; right:-8%;
-          animation:blobDrift 18s ease-in-out infinite reverse;
-        }
-        .blob-3 {
-          width:350px; height:350px;
-          background:radial-gradient(circle,rgba(0,184,148,.09),transparent 70%);
-          top:50%; left:50%; transform:translate(-50%,-50%);
-          animation:blobDrift 10s ease-in-out infinite 3s;
-        }
-        @keyframes blobDrift {
-          0%,100% { transform:translate(0,0) scale(1); }
-          33%      { transform:translate(30px,-25px) scale(1.06); }
-          66%      { transform:translate(-20px,20px) scale(.96); }
-        }
 
         /* Hero inner */
         .hero-inner {
@@ -955,11 +962,9 @@ const Portfolio = () => {
         .hero-copy { text-align:center; }
         .hero-hi { color:var(--muted); font-size:1.05rem; margin-bottom:.4rem; letter-spacing:.04em; }
         .hero-name {
-          font-size:clamp(3rem,9vw,6rem); font-weight:900;
+          font-size:clamp(3rem,9vw,6rem); font-weight:400;
           letter-spacing:-3px; line-height:1;
-          background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--teal) 100%);
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-          background-clip:text; margin-bottom:1rem;
+          color:var(--text); margin-bottom:1rem;
         }
         .hero-role {
           font-size:clamp(1.15rem,3vw,1.75rem); font-weight:600;
@@ -1149,10 +1154,8 @@ const Portfolio = () => {
           pointer-events:none;
         }
         .contact-wrap h2 {
-          font-size:clamp(2rem,5vw,3.5rem); font-weight:900;
-          background:linear-gradient(135deg,var(--blue),var(--purple));
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-          background-clip:text; margin-bottom:1rem;
+          font-size:clamp(2rem,5vw,3.5rem); font-weight:400;
+          color:var(--text); margin-bottom:1rem;
         }
         .contact-wrap p { color:var(--muted); font-size:1.08rem; margin-bottom:2.2rem; }
 
@@ -1160,7 +1163,7 @@ const Portfolio = () => {
         .pf-footer {
           position:relative; z-index:1;
           text-align:center; padding:4rem 2rem;
-          border-top:1px solid var(--border); background:var(--bg2);
+          border-top:1px solid var(--border); background:var(--bg);
         }
         .socials { display:flex; justify-content:center; gap:.9rem; margin-bottom:1.4rem; }
         .social-a {
@@ -1187,9 +1190,11 @@ const Portfolio = () => {
         @media(max-width:768px){
           .hdr { padding:.9rem 1.2rem; }
           .hdr-nav {
-            display:none; position:fixed; inset:0;
+            display:none; position:fixed;
+            top:0; left:0; right:0; bottom:0;
+            transform:none; height:auto;
             background:var(--bg); flex-direction:column;
-            align-items:center; justify-content:center; z-index:998;
+            align-items:center; justify-content:center; z-index:999;
           }
           .hdr-nav.open { display:flex; }
           .hdr-nav ul { flex-direction:column; align-items:center; gap:.4rem; }
@@ -1198,8 +1203,7 @@ const Portfolio = () => {
           .support-btn { display:none; }
           .pf-main { padding:0 1rem; }
           section { padding:5rem 0; }
-          .hero { padding-top:4.5rem; }
-          .blob { display:none; }
+          .hero { padding-top:8rem; }
           .hero-btns { flex-direction:column; align-items:center; }
           .btn-primary,.btn-ghost { width:100%; max-width:280px; text-align:center; }
           .proj-grid { grid-template-columns:1fr; }

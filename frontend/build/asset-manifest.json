@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/static/js/main.eb91043a.js",
+    "main.js": "/static/js/main.35d89f44.js",
     "static/media/19decode.jpg": "/static/media/19decode.b63d1d4d70f6d6502b7a.jpg",
     "static/media/Facility19.jpg": "/static/media/Facility19.16eccb12343fc5bc2a75.jpg",
     "static/media/scribing.jpg": "/static/media/scribing.1a2d9469e06f367c7798.jpg",
     "static/media/Voicecopilotai.jpg": "/static/media/Voicecopilotai.0cf81abc8f5ec38db4b2.jpg",
-    "static/media/User.jpg": "/static/media/User.fd9c810af99c318d29f7.jpg",
+    "static/media/User.jpg": "/static/media/User.6705e47b9b152ee34232.jpg",
     "static/media/Postgirl.jpg": "/static/media/Postgirl.22d93ed4145298399cc5.jpg",
     "static/media/Nutrination.jpg": "/static/media/Nutrination.9f470eb858e950d4a9fc.jpg",
     "static/media/WifeCode.jpg": "/static/media/WifeCode.3e7d8142b9f75c7dff01.jpg",
@@ -22,9 +22,9 @@
     "static/media/Megheza.jpg": "/static/media/Megheza.2cdb18460398ec19f9c5.jpg",
     "static/media/Analytics.jpg": "/static/media/Analytics.a53c5aea2eb866df71c3.jpg",
     "index.html": "/index.html",
-    "main.eb91043a.js.map": "/static/js/main.eb91043a.js.map"
+    "main.35d89f44.js.map": "/static/js/main.35d89f44.js.map"
   },
   "entrypoints": [
-    "static/js/main.eb91043a.js"
+    "static/js/main.35d89f44.js"
   ]
 }
