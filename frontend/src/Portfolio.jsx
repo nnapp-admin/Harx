@@ -359,11 +359,23 @@ const Portfolio = () => {
 
   const canvasRef = useRef(null);
   const animRef = useRef(null);
+  const cursorRef = useRef(null);
 
   // Load theme
   useEffect(() => {
     const saved = localStorage.getItem('theme') || 'dark';
     setTheme(saved);
+  }, []);
+
+  // Custom cursor
+  useEffect(() => {
+    const move = (e) => {
+      const el = cursorRef.current;
+      if (!el) return;
+      el.style.transform = `translate(${e.clientX - 6}px, ${e.clientY - 6}px)`;
+    };
+    document.addEventListener('mousemove', move);
+    return () => document.removeEventListener('mousemove', move);
   }, []);
 
   // Preload hero image
@@ -542,7 +554,7 @@ const Portfolio = () => {
     const ry = ((x / r.width) - 0.5) * 18;
     el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(22px)`;
     const shine = el.querySelector('.shine');
-    if (shine) shine.style.background = `radial-gradient(circle at ${x}px ${y}px,rgba(255,255,255,0.13),transparent 65%)`;
+    if (shine) shine.style.background = 'none';
   }, []);
   const onCardLeave = useCallback((e) => {
     const el = e.currentTarget;
@@ -581,6 +593,9 @@ const Portfolio = () => {
 
   return (
     <div data-theme={theme} className="pf">
+      {/* Custom cursor */}
+      <div ref={cursorRef} className="custom-cursor" />
+
       {/* Particle canvas */}
       <canvas ref={canvasRef} className="pf-canvas" />
 
@@ -773,9 +788,20 @@ const Portfolio = () => {
       {/* ══ STYLES ═══════════════════════════════════════════════════════════ */}
       <style>{`
         /* Reset */
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
-        body { overflow-x:hidden; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; user-select:none; cursor:none !important; }
+        html { scroll-behavior:smooth; -ms-overflow-style:none; scrollbar-width:none; }
+        html::-webkit-scrollbar { display:none; }
+        body { overflow-x:hidden; -ms-overflow-style:none; scrollbar-width:none; }
+        body::-webkit-scrollbar { display:none; }
+
+        /* Custom cursor */
+        .custom-cursor {
+          position:fixed; top:0; left:0; z-index:999999;
+          width:12px; height:12px; border-radius:50%;
+          background:var(--blue);
+          box-shadow:0 0 8px var(--blue), 0 0 16px rgba(0,112,243,0.45);
+          pointer-events:none; will-change:transform;
+        }
 
         /* Tokens */
         :root {
@@ -933,7 +959,7 @@ const Portfolio = () => {
         }
 
         /* Avatar */
-        .avatar-wrap { position:relative; width:150px; height:150px; flex-shrink:0; }
+        .avatar-wrap { position:relative; width:130px; height:130px; flex-shrink:0; }
         .avatar-ring {
           position:absolute; inset:-9px; border-radius:50%;
           background:conic-gradient(var(--blue),var(--purple),var(--teal),var(--blue));
@@ -1076,9 +1102,7 @@ const Portfolio = () => {
           background:linear-gradient(to bottom,transparent 38%,var(--bg) 100%);
           opacity:.72;
         }
-        [data-theme='light'] .proj-overlay {
-          background:linear-gradient(to bottom,transparent 38%,rgba(240,244,248,.92) 100%);
-        }
+        [data-theme='light'] .proj-overlay { display:none; }
         .badge {
           position:absolute; top:11px; right:11px;
           padding:.28rem .7rem; border-radius:20px;
@@ -1214,7 +1238,7 @@ const Portfolio = () => {
         @media(max-width:480px){
           .hero-name { font-size:2.8rem; letter-spacing:-1.5px; }
           .hero-role  { font-size:1.1rem; }
-          .avatar-wrap { width:120px; height:120px; }
+          .avatar-wrap { width:100px; height:100px; }
           .sec-hdr h2 { font-size:1.8rem; }
         }
       `}</style>
