@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import Lottie from 'react-lottie';
 import UserImage from './assets/User.jpg';
 import LoadingAnimation from './assets/Loading.json';
-// Import individual project images
 import AnalyticsImage from './assets/Analytics.jpg';
 import ScribingImage from './assets/scribing.jpg';
 import BrandMapImage from './assets/BrandMapmap.jpg';
@@ -26,1152 +25,1193 @@ import DecodeImage from './assets/19decode.jpg';
 import FacilityImage from './assets/Facility19.jpg';
 import PostgirlImage from './assets/Postgirl.jpg';
 
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
+const PROJECTS = [
+  {
+    title: 'Scribing',
+    description:
+      'AI-powered medical documentation system that listens to consultations, performs speech-to-text processing, extracts medical entities, and converts them into structured clinical templates. Uses RAG validation, domain-tuned LLM prompts, and physician-style formatting.',
+    tags: ['React', 'TypeScript', 'AWS', 'Speech Recognition', 'GPT-OSS', 'Gemma'],
+    link: 'https://scribing.io',
+    status: 'complete',
+    image: ScribingImage,
+  },
+  {
+    title: 'VoiceCopilot',
+    description:
+      'Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7.',
+    tags: ['React', 'TypeScript', 'AWS', 'Voice Agent', 'Agentic AI'],
+    link: 'https://voicecopilotai.com',
+    status: 'complete',
+    image: VoiceImage,
+  },
+  {
+    title: '19Decode',
+    description:
+      'Sports prediction platform powered by custom machine learning models that analyze historical data, player performance, and real-time match factors to generate accurate game insights.',
+    tags: ['React', 'TypeScript', 'AWS', 'Machine Learning', 'Data Analytics', 'Predictive Modeling'],
+    link: 'https://app.19decode.com',
+    status: 'complete',
+    image: DecodeImage,
+  },
+  {
+    title: 'Facility19',
+    description:
+      'AI-powered facility management platform that automates operations such as scheduling, dispatch, vendor coordination, and resident communication.',
+    tags: ['React', 'TypeScript', 'AWS', 'AI Automation', 'Workflow Management', 'SaaS'],
+    link: 'https://facility19.com',
+    status: 'complete',
+    image: FacilityImage,
+  },
+  {
+    title: 'PostGirl',
+    description:
+      'AI-powered content generation and publishing tool designed to help users create, refine, and share social media posts effortlessly. Smart text generation to streamline the content creation workflow.',
+    tags: ['React', 'TypeScript', 'AWS', 'Agentic AI'],
+    link: 'https://post-girl.vercel.app/',
+    status: 'complete',
+    image: PostgirlImage,
+  },
+  {
+    title: 'SalesCat',
+    description:
+      'A text-based AI sales agent trained to mimic high-performing sales reps. Uses LLM reasoning, objection-handling flows, tone adaptation, and CRM-style structured outputs to close leads.',
+    tags: ['React', 'TypeScript', 'AWS', 'GPT-OSS'],
+    link: 'https://salescat.org/',
+    status: 'complete',
+    image: SalescatImage,
+  },
+  {
+    title: 'StarLook',
+    description:
+      'Virtual wardrobe and styling assistant using multimodal embeddings, image processing, and AI-powered outfit recommendations. Users can upload clothing and generate looks.',
+    tags: ['React', 'AWS', 'Next.js', 'Gemini'],
+    link: 'https://studio--virtual-vogue-z1mz4.us-central1.hosted.app/',
+    status: 'complete',
+    image: StarlookImage,
+  },
+  {
+    title: 'FounderCult',
+    description:
+      'A unified ecosystem where startup founders access tools, vetted service providers, community discussions, and collaboration channels. Built with role-based access and scalable server architecture.',
+    tags: ['React', 'AWS', 'Next.js'],
+    link: 'https://foundercult.com/',
+    status: 'complete',
+    image: FounderImage,
+  },
+  {
+    title: 'MyWaiter',
+    description:
+      'QR-based restaurant automation platform enabling real-time ordering, live menu sync, staff dashboards, and ML-powered upsell suggestions. Designed to reduce service friction.',
+    tags: ['React', 'Node.js', 'MongoDB', 'Restaurant Tech'],
+    link: 'https://mywaiter.in',
+    status: 'complete',
+    image: MyWaiterImage,
+  },
+  {
+    title: 'Skord',
+    description:
+      'A reasoning-based AI decision agent that evaluates multiple options, compares outcomes, and generates structured recommendations using multi-step thought processes and confidence scoring.',
+    tags: ['React', 'AI', 'Decision Making', 'Python'],
+    link: 'https://skord.club/',
+    status: 'complete',
+    image: SkordImage,
+  },
+  {
+    title: 'drOcto',
+    description:
+      'Interactive AI learning environment for kids with safety guardrails, adaptive difficulty, feedback loops, and gamified reinforcement systems — designed to build critical thinking.',
+    tags: ['React', 'AI', 'Development Tools', 'Automation'],
+    link: 'https://drocto.in',
+    status: 'complete',
+    image: DrOctoImage,
+  },
+  {
+    title: 'Brandmap',
+    description:
+      'A visual discovery platform that maps trending businesses, celebrities, and hotspots using geo-indexed data, API scraping, and real-time ranking algorithms.',
+    tags: ['React', 'Map API', 'Social Media', 'Trends'],
+    link: 'https://map-o7bz.onrender.com',
+    status: 'in development',
+    image: BrandMapImage,
+  },
+  {
+    title: 'GhostBrand',
+    description: 'An all-in-one solution for Personal Brands to sell anything online.',
+    tags: ['UI/UX', 'Branding', 'Design System'],
+    link: 'https://ghostbrand.onrender.com/',
+    status: 'in development',
+    image: GhostBrandImage,
+  },
+  {
+    title: 'Gig Advance',
+    description:
+      'Fintech platform that verifies identity using Aadhaar, links bank accounts via SETU API, analyzes earnings history, and provides instant advance payouts through automated underwriting.',
+    tags: ['React', 'Node.js', 'Aadhar Verification', 'Loan App'],
+    link: 'https://giga-483t.onrender.com/',
+    status: 'in development',
+    image: GigAdvanceImage,
+  },
+  {
+    title: 'Analytics Dashboard',
+    description:
+      'A demo project that helps administrators of a Fantasy Betting Platform monitor user behavior, financials, and team preferences. (Backend may take ~50s on free tier.)',
+    tags: ['React', 'Node.js', 'Machine Learning', 'Data Analytics'],
+    link: 'https://fantasy11-3vnl.onrender.com/',
+    status: 'complete',
+    image: AnalyticsImage,
+  },
+  {
+    title: 'PinkSync',
+    description:
+      'Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours.',
+    tags: ['React', 'Next.js', 'Location Services', 'Safety Tech'],
+    link: 'https://pinksync.onrender.com/',
+    status: 'complete',
+    image: PinkSyncImage,
+  },
+  {
+    title: 'Nutrination.AI',
+    description:
+      'AI-driven health assistant offering personalized nutrition guidance, daily routines, risk scores, and habit reinforcement using user health data and LLM reasoning.',
+    tags: ['React', 'AI', 'Healthcare', 'Python'],
+    link: 'https://storied-cocada-8bfcc4.netlify.app/',
+    status: 'in development',
+    image: NutrinationImage,
+  },
+  {
+    title: 'Megheza',
+    description: 'Global Professional Network for Verified Journalists to connect, collaborate and grow.',
+    tags: ['React', 'Next.js', 'AWS'],
+    link: 'https://megheza.com/',
+    status: 'complete',
+    image: MeghezaImage,
+  },
+  {
+    title: 'Konark',
+    description:
+      'Coding companion capable of repo generation, code completion, debugging assistance, and project scaffolding — powered by LLMs, embeddings, and streaming response architecture.',
+    tags: ['React', 'Coding Assistant', 'GPT-OSS', 'WebApp'],
+    link: 'https://konark.onrender.com',
+    status: 'complete',
+    image: KonarkImage,
+  },
+];
+
+const EXPERIENCES = [
+  {
+    date: 'Feb 2026 - Present',
+    title: 'AI Engineer',
+    company: 'WeLaunch · Full-time · Remote',
+    description:
+      'Building full-stack and agentic AI systems at WeLaunch, contributing across the entire product lifecycle — from backend architecture and API integrations to deploying LLM-powered workflows and automation pipelines.',
+    tags: ['Full Stack Development', 'Agentic AI', 'LLMs', 'API Integration', 'Automation'],
+  },
+  {
+    date: 'Jan 2026 - Feb 2026',
+    title: 'AI Engineer Intern',
+    company: 'Vela (YC W26) · Remote',
+    description:
+      'Vela is a Y Combinator-backed AI assistant that helps people schedule meetings effortlessly — no back-and-forth, no chaos. She books interviews and coordinates across clients & candidates.',
+    tags: ['Agentic AI', 'Scheduling Automation', 'LLMs', 'YC W26'],
+  },
+  {
+    date: 'Dec 2025 - Present',
+    title: 'Co-Founder',
+    company: 'VoiceCopilot AI',
+    description:
+      'Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7. Built the core voice agentic infrastructure and real-time call handling pipelines.',
+    tags: ['Voice AI', 'Agentic AI', 'Early Stage Ventures', 'Full Stack Development', 'Entrepreneurship'],
+  },
+  {
+    date: 'Aug 2025 - Present',
+    title: 'Co-Founder',
+    company: 'Scribing · Part-time · Remote',
+    description:
+      'Our AI listens to every consultation, transcribes it in real time, and instantly converts it into structured medical templates, while intelligently evaluating ICD-10 codes.',
+    tags: ['AI Medical Scribe', 'Speech Recognition', 'LLMs', 'Healthcare Tech', 'Entrepreneurship'],
+  },
+  {
+    date: 'May 2025 - Present',
+    title: 'Member',
+    company: 'FounderCult · Part-time · India',
+    description:
+      'All the tools, services & connections startup founders need — to build smarter, move faster & grow together. Active contributor in a founder ecosystem.',
+    tags: ['Start-up Ventures', 'MERN Stack', 'Community Building', 'Entrepreneurship'],
+  },
+  {
+    date: 'Jan 2025 - Present',
+    title: 'SDE',
+    company: 'AM Megheza',
+    description:
+      'Global Professional Network for Verified Journalists. Founding Engineer responsible for designing, building, and maintaining the website and web applications, server management, and security.',
+    tags: ['Full Stack Development', 'AWS', 'Team Collaboration'],
+  },
+  {
+    date: 'March 2025 - Present',
+    title: 'Founder',
+    company: 'Drocto',
+    description:
+      'Pioneering a child-friendly AI ecosystem designed to enhance how kids interact with technology — intelligently, safely, and purposefully.',
+    tags: ['Full Stack Development', 'Team Management', 'Strategic Planning', 'Entrepreneurship'],
+  },
+  {
+    date: 'Aug 2024 - Present',
+    title: 'Founder',
+    company: 'MyWaiter',
+    description:
+      'Full-stack web application that allows diners to scan a QR code, view live menus, place orders, and pay — without downloading any app. Restaurant staff get real-time order notifications and ML-powered upsell suggestions.',
+    tags: ['Full Stack Development', 'Team Management', 'Strategic Planning', 'Entrepreneurship'],
+  },
+  {
+    date: 'Oct 2022 - May 2024',
+    title: 'Content & Marketing Strategist',
+    company: 'Indian Institute of Technology, Madras',
+    description: 'Shaped connections at Alumni and Corporate Relations by curating compelling content.',
+    tags: ['Corporate Communications', 'Content Marketing', 'Social Media Strategy', 'Crisis Management'],
+  },
+  {
+    date: 'Apr 2020 - Present',
+    title: 'Freelance VFX/GFX Designer',
+    company: 'Fiverr',
+    description: 'Working as a freelance graphic designer and brand management designer.',
+    tags: ['Graphic Design', 'Brand Management', 'Visual Effects', 'Copywriting'],
+  },
+];
+
+const EDUCATION = [
+  {
+    date: '2021 - 2025',
+    degree: 'Bachelor of Science — Data Science',
+    institution: 'Indian Institute of Technology, Madras',
+    description: 'Focusing on Python, Data Analytics, Machine Learning Algorithms, and Database Management.',
+  },
+  {
+    date: 'Jul 2021 - Jul 2024',
+    degree: 'Bachelor of Business Administration',
+    institution: 'Amity University Online',
+    description: '',
+  },
+];
+
+const SKILLS = {
+  Development: [
+    'Python', 'JavaScript', 'React', 'Node.js', 'Next.js', 'MongoDB', 'AWS', 'GCP',
+    'SQL', 'Anthropic SDK', 'CI/CD', 'OpenAI SDK', 'xAI SDK', 'Gemini SDK', 'Kotlin & Android Studio',
+  ],
+  'Data Science & AI': [
+    'Data Analytics', 'Machine Learning', 'Database Management', 'Data Visualization',
+    'Fine Tuning', 'Vector Databases', 'RAG Pipeline', 'Ollama', 'HuggingFace', 'LangChain',
+  ],
+  Design: ['Graphic Design', 'UI/UX Design', 'Visual Effects', 'Brand Development'],
+  'Content Creation': ['GFX Design', 'VFX Design', 'Content Research', 'Content Writing', 'Content Curation', 'AI Generated Videos'],
+};
+
+// ─── Typewriter ────────────────────────────────────────────────────────────────
+
+const Typewriter = ({ texts, speed = 80 }) => {
+  const [displayed, setDisplayed] = useState('');
+  const [idx, setIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const current = texts[idx];
+    const timer = setTimeout(() => {
+      if (!deleting) {
+        setDisplayed(current.slice(0, charIdx + 1));
+        setCharIdx((c) => c + 1);
+        if (charIdx + 1 === current.length) {
+          setPaused(true);
+          setTimeout(() => { setDeleting(true); setPaused(false); }, 2200);
+        }
+      } else {
+        setDisplayed(current.slice(0, charIdx - 1));
+        setCharIdx((c) => c - 1);
+        if (charIdx - 1 === 0) {
+          setDeleting(false);
+          setIdx((i) => (i + 1) % texts.length);
+        }
+      }
+    }, deleting ? speed / 2 : speed);
+    return () => clearTimeout(timer);
+  }, [charIdx, deleting, idx, paused, texts, speed]);
+
+  return (
+    <span className="tw-text">
+      {displayed}
+      <span className="tw-cursor">|</span>
+    </span>
+  );
+};
+
+// ─── Main Portfolio ────────────────────────────────────────────────────────────
 
 const Portfolio = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-  const [isUserImageLoaded, setIsUserImageLoaded] = useState(false);
-  const [theme, setTheme] = useState('dark'); // Default to dark mode
+  const [theme, setTheme] = useState('dark');
+  const [activeSection, setActiveSection] = useState('home');
+  const [scrollPct, setScrollPct] = useState(0);
 
-  const toggleNav = () => setIsNavOpen(!isNavOpen);
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
 
-  const scrollToSection = (e, sectionId) => {
-    e.preventDefault();
-    document.querySelector(sectionId).scrollIntoView({ behavior: 'smooth' });
-    setIsNavOpen(false);
-  };
-
-  // Theme toggle function
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
-
-  // Load theme from localStorage on mount
+  // Load theme
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
+    const saved = localStorage.getItem('theme') || 'dark';
+    setTheme(saved);
   }, []);
 
-  const lottieOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: LoadingAnimation,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
-
+  // Preload hero image
   useEffect(() => {
     const img = new Image();
     img.src = UserImage;
-    img.onload = () => {
-      setIsUserImageLoaded(true);
-      setIsPageLoaded(true);
-    };
-    img.onerror = () => {
-      setIsUserImageLoaded(true);
-      setIsPageLoaded(true);
-    };
-
-    const timeout = setTimeout(() => {
-      setIsPageLoaded(true);
-    }, 5000);
-
-    return () => clearTimeout(timeout);
+    const done = () => setIsPageLoaded(true);
+    img.onload = done;
+    img.onerror = done;
+    const t = setTimeout(done, 5000);
+    return () => clearTimeout(t);
   }, []);
 
-  const ProjectCard = ({ title, description, tags, link, status, image }) => {
-    const [isProjectImageLoaded, setIsProjectImageLoaded] = useState(false);
+  // Canvas particle network
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const isMobile = window.innerWidth < 768;
+    const COUNT = isMobile ? 55 : 130;
+    const LINK_DIST = isMobile ? 0 : 140;
 
-    useEffect(() => {
-      if (image) {
-        const img = new Image();
-        img.src = image;
-        img.onload = () => setIsProjectImageLoaded(true);
-        img.onerror = () => setIsProjectImageLoaded(true);
-      } else {
-        setIsProjectImageLoaded(true);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const particles = Array.from({ length: COUNT }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      r: Math.random() * 1.8 + 0.4,
+      hue: Math.random() > 0.55 ? 213 : 260,
+      opacity: Math.random() * 0.55 + 0.25,
+    }));
+
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        const dx = p.x - mouseRef.current.x;
+        const dy = p.y - mouseRef.current.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 110 && d > 0) { p.x += (dx / d) * 1.8; p.y += (dy / d) * 1.8; }
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue},90%,65%,${p.opacity})`;
+        ctx.fill();
+      });
+
+      if (LINK_DIST > 0) {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d = Math.hypot(dx, dy);
+            if (d < LINK_DIST) {
+              const a = (1 - d / LINK_DIST) * 0.22;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(0,112,243,${a})`;
+              ctx.lineWidth = 0.7;
+              ctx.stroke();
+            }
+          }
+        }
       }
-    }, [image]);
+      animRef.current = requestAnimationFrame(tick);
+    };
+    tick();
 
-    return (
-      <div className="project-card">
-        <div className="project-img">
-          {isProjectImageLoaded && image ? (
-            <img src={image} alt={title} className="project-image" />
-          ) : (
-            <div className="loading-container">
-              <Lottie options={lottieOptions} height={100} width={100} />
-            </div>
-          )}
-          {!image && isProjectImageLoaded && title}
-        </div>
-        <div className="project-info">
-          <h3>{title}</h3>
-          <p>{description}</p>
-          <div className="status-section">
-            <span className={`status ${status.toLowerCase()}`}>
-              {status === 'complete' ? 'Complete' : 'In Development'}
-            </span>
-          </div>
-          <div>
-            {tags.map((tag, index) => (
-              <span key={index} className="tag">{tag}</span>
-            ))}
-          </div>
-          {link && (
-            <p>
-              <a href={link} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
-                Live Demo →
-              </a>
-            </p>
-          )}
-        </div>
-      </div>
+    return () => {
+      window.removeEventListener('resize', resize);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, []);
+
+  // Mouse tracking for particle repulsion
+  useEffect(() => {
+    const onMove = (e) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  // Scroll progress + active section + reveal
+  useEffect(() => {
+    if (!isPageLoaded) return;
+
+    const onScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(total > 0 ? (window.scrollY / total) * 100 : 0);
+      const ids = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
+      for (let i = ids.length - 1; i >= 0; i--) {
+        const el = document.getElementById(ids[i]);
+        if (el && el.getBoundingClientRect().top <= 120) { setActiveSection(ids[i]); break; }
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const delay = parseInt(entry.target.dataset.delay || '0', 10);
+            setTimeout(() => entry.target.classList.add('vis'), delay);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '-20px' }
     );
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
+    };
+  }, [isPageLoaded]);
+
+  // 3D tilt card handlers
+  const onCardEnter = useCallback((e) => {
+    e.currentTarget.style.transition = 'transform 0.08s ease, box-shadow 0.3s ease';
+  }, []);
+  const onCardMove = useCallback((e) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    const rx = ((y / r.height) - 0.5) * -18;
+    const ry = ((x / r.width) - 0.5) * 18;
+    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(22px)`;
+    const shine = el.querySelector('.shine');
+    if (shine) shine.style.background = `radial-gradient(circle at ${x}px ${y}px,rgba(255,255,255,0.13),transparent 65%)`;
+  }, []);
+  const onCardLeave = useCallback((e) => {
+    const el = e.currentTarget;
+    el.style.transition = 'transform 0.55s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease';
+    el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    const shine = el.querySelector('.shine');
+    if (shine) shine.style.background = 'none';
+  }, []);
+  const tilt = { onMouseEnter: onCardEnter, onMouseMove: onCardMove, onMouseLeave: onCardLeave };
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('theme', next);
+  };
+  const scrollTo = (e, id) => {
+    e.preventDefault();
+    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+    setIsNavOpen(false);
   };
 
-  const ExperienceCard = ({ date, title, company, description, tags }) => (
-    <div className="experience-card">
-      <span className="date">{date}</span>
-      <h3>{title}</h3>
-      <h4>{company}</h4>
-      <p>{description}</p>
-      <div>
-        {tags.map((tag, index) => (
-          <span key={index} className="tag">{tag}</span>
-        ))}
-      </div>
-    </div>
-  );
-
-  const EducationCard = ({ date, degree, institution, description }) => (
-    <div className="education-card">
-      <span className="date">{date}</span>
-      <h3>{degree}</h3>
-      <h4>{institution}</h4>
-      {description && <p>{description}</p>}
-    </div>
-  );
-
-  const SkillCategory = ({ title, skills }) => (
-    <div className="skill-category">
-      <h3>{title}</h3>
-      <div className="skill-list">
-        {skills.map((skill, index) => (
-          <span key={index} className="skill-tag">{skill}</span>
-        ))}
-      </div>
-    </div>
-  );
+  const lottieOpts = {
+    loop: true, autoplay: true, animationData: LoadingAnimation,
+    rendererSettings: { preserveAspectRatio: 'xMidYMid slice' },
+  };
 
   if (!isPageLoaded) {
     return (
-      <div className="page-loading-container">
-        <Lottie options={lottieOptions} height={200} width={200} />
-        <style jsx>{`
-          .page-loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-          }
-        `}</style>
+      <div style={{ position:'fixed',inset:0,background:'#050508',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999 }}>
+        <Lottie options={lottieOpts} height={200} width={200} />
       </div>
     );
   }
 
+  const NAV = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
+
   return (
-    <div className="portfolio" data-theme={theme}>
-      <header>
-        <div className="logo">Harshit</div>
-        <nav className={isNavOpen ? 'active' : ''}>
+    <div data-theme={theme} className="pf">
+      {/* Particle canvas */}
+      <canvas ref={canvasRef} className="pf-canvas" />
+
+      {/* Top scroll progress */}
+      <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
+
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <header className="hdr">
+        <div className="hdr-logo">Portfolio</div>
+        <nav className={`hdr-nav${isNavOpen ? ' open' : ''}`}>
           <ul>
-            <li>
-              <a href="#home" onClick={(e) => scrollToSection(e, '#home')}>
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="#projects" onClick={(e) => scrollToSection(e, '#projects')}>
-                Projects
-              </a>
-            </li>
-            <li>
-              <a href="#experience" onClick={(e) => scrollToSection(e, '#experience')}>
-                Experience
-              </a>
-            </li>
-            <li>
-              <a href="#education" onClick={(e) => scrollToSection(e, '#education')}>
-                Education
-              </a>
-            </li>
-            <li>
-              <a href="#skills" onClick={(e) => scrollToSection(e, '#skills')}>
-                Skills
-              </a>
-            </li>
-            <li>
-              <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')}>
-                Contact
-              </a>
-            </li>
+            {NAV.map((id) => (
+              <li key={id}>
+                <a href={`#${id}`} className={activeSection === id ? 'active' : ''} onClick={(e) => scrollTo(e, `#${id}`)}>
+                  {id.charAt(0).toUpperCase() + id.slice(1)}
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
-        <div className="header-buttons">
-          <a
-            href="https://razorpay.me/@cassinicorp"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="support-button"
-          >
+        <div className="hdr-right">
+          <a href="https://razorpay.me/@cassinicorp" target="_blank" rel="noopener noreferrer" className="support-btn">
             Support Me
           </a>
-          <div className="theme-toggle" onClick={toggleTheme}>
+          <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
             <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
-          </div>
-          <div className="mobile-menu" onClick={toggleNav}>
+          </button>
+          <button className="icon-btn menu-btn" onClick={() => setIsNavOpen((o) => !o)} aria-label="Menu">
             <FontAwesomeIcon icon={isNavOpen ? faTimes : faBars} />
-          </div>
+          </button>
         </div>
       </header>
 
-      <main>
+      <main className="pf-main">
+
+        {/* ══ HERO ═════════════════════════════════════════════════════════ */}
         <section id="home" className="hero">
-          <div className="hero-content">
-            <img src={UserImage} alt="Harx" className="user-image" />
-            <h1>Hello, I'm Harshit</h1>
+          <div className="blob blob-1" />
+          <div className="blob blob-2" />
+          <div className="blob blob-3" />
+
+          <div className="hero-inner">
+            <div className="avatar-wrap">
+              <div className="avatar-ring" />
+              <img src={UserImage} alt="Harshit" className="avatar-img" />
+              <div className="avatar-glow" />
+            </div>
+            <div className="hero-copy">
+              <p className="hero-hi">Hi there, I'm</p>
+              <h1 className="hero-name">Harshit</h1>
+              <div className="hero-role">
+                <Typewriter texts={['Full-Stack Developer', 'AI Engineer', 'Co-Founder', 'Builder of 0→1 Products']} speed={72} />
+              </div>
+              <p className="hero-bio">
+                Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.
+              </p>
+              <div className="hero-btns">
+                <a href="#projects" className="btn-primary" onClick={(e) => scrollTo(e, '#projects')}>View Projects</a>
+                <a href="#contact" className="btn-ghost" onClick={(e) => scrollTo(e, '#contact')}>Contact Me</a>
+              </div>
+            </div>
           </div>
-          <p>
-         Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.          </p>
-          <div>
-            <a href="#projects" className="cta" onClick={(e) => scrollToSection(e, '#projects')}>
-              View Projects
-            </a>
-            <a href="#contact" className="cta-secondary" onClick={(e) => scrollToSection(e, '#contact')}>
-              Contact Me
-            </a>
-          </div>
+
+          <button className="scroll-cue" onClick={(e) => scrollTo(e, '#projects')} aria-label="Scroll down">
+            <div className="cue-mouse"><div className="cue-dot" /></div>
+          </button>
         </section>
 
+        {/* ══ PROJECTS ═════════════════════════════════════════════════════ */}
         <section id="projects">
-          <h2>Projects</h2>
-          <div className="projects">
-            <ProjectCard
-              title="Scribing"
-              description="AI-powered medical documentation system that listens to consultations, performs speech-to-text processing, extracts medical entities, and converts them into structured clinical templates. Uses RAG validation, domain-tuned LLM prompts, and physician-style formatting for accuracy and compliance."
-              tags={['React', 'TypeScript', 'AWS', 'Speech Recognition', 'GPT-OSS', 'Gemma']}
-              link="https://scribing.io"
-              status="complete"
-              image={ScribingImage}
-            />
-            <ProjectCard
-              title="VoiceCopilot"
-              description="Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7."
-              tags={['React', 'TypeScript', 'AWS', 'Voice Agent', 'Agentic AI']}
-              link="https://voicecopilotai.com"
-              status="complete"
-              image={VoiceImage}
-            />
-            <ProjectCard
-              title="19Decode"
-              description="Sports prediction platform powered by custom machine learning models that analyze historical data, player performance, and real-time match factors to generate accurate game insights and outcome forecasts. Designed for data-driven decision-making with a fast, intuitive interface."
-              tags={['React', 'TypeScript', 'AWS', 'Machine Learning', 'Data Analytics', 'Predictive Modeling', 'Sports Tech']}
-              link="https://app.19decode.com"
-              status="complete"
-              image={DecodeImage}
-            />
-            <ProjectCard
-              title="Facility19"
-              description="AI-powered facility management platform that automates operations such as scheduling, dispatch, vendor coordination, and resident communication. Built to streamline workflows, centralize data, and replace manual systems with intelligent, scalable infrastructure for modern property and facility teams."
-              tags={['React', 'TypeScript', 'AWS', 'AI Automation', 'Workflow Management', 'Operations Tech', 'SaaS']}
-              link="https://facility19.com"
-              status="complete"
-              image={FacilityImage}
-            />
-            <ProjectCard
-              title="PostGirl"
-              description="AI-powered content generation and publishing tool designed to help users create, refine, and share social media posts effortlessly. Focused on speed and simplicity, it combines intuitive UI with smart text generation to streamline the content creation workflow from idea to publish."
-              tags={['React', 'TypeScript', 'AWS', 'Agentic AI']}
-              link="https://post-girl.vercel.app/"
-              status="complete"
-              image={PostgirlImage}
-            />
-            <ProjectCard
-              title="SalesCat"
-              description="A Text based AI sales agent trained to mimic high-performing sales reps. Uses LLM reasoning, objection-handling flows, tone adaptation, and CRM-style structured outputs to close leads automatically."
-              tags={['React', 'TypeScript', 'AWS', 'GPT-OSS']}
-              link="https://salescat.org/"
-              status="complete"
-              image={SalescatImage}
-            />
-            <ProjectCard
-              title="StarLook"
-              description="Virtual wardrobe and styling assistant using multimodal embeddings, image processing, and AI-powered outfit recommendations. Users can upload clothing, generate looks, and explore trends with real-time product mapping."
-              tags={['React', 'AWS', 'Next.Js', 'Gemini']}
-              link="https://studio--virtual-vogue-z1mz4.us-central1.hosted.app/"
-              status="complete"
-              image={StarlookImage}
-            />
-            <ProjectCard
-              title="FounderCult"
-              description="A unified ecosystem where startup founders access tools, vetted service providers, community discussions, and collaboration channels. Built with role-based access, modular UI components, and scalable server architecture."
-              tags={['React', 'AWS', 'Next.Js']}
-              link="https://foundercult.com/"
-              status="complete"
-              image={FounderImage}
-            />
-            <ProjectCard
-              title="MyWaiter"
-              description="QR-based restaurant automation platform enabling real-time ordering, live menu sync, staff dashboards, and ML-powered upsell suggestions. Designed to reduce service friction and increase order value."
-              tags={['React', 'Node.js', 'MongoDB', 'Restaurant Tech']}
-              link="https://mywaiter.in"
-              status="complete"
-              image={MyWaiterImage}
-            />
-            <ProjectCard
-              title="Skord"
-              description="A reasoning-based AI decision agent that evaluates multiple options, compares outcomes, and generates structured recommendations using multi-step thought processes and confidence scoring."
-              tags={['React', 'AI', 'Decision Making', 'Python']}
-              link="https://skord.club/"
-              status="complete"
-              image={SkordImage}
-            />
-            <ProjectCard
-              title="drOcto"
-              description="Interactive AI learning environment for kids with safety guardrails, adaptive difficulty, feedback loops, and gamified reinforcement systems — designed to build critical thinking and real-world reasoning ability."
-              tags={['React', 'AI', 'Development Tools', 'Automation']}
-              link="https://drocto.in"
-              status="complete"
-              image={DrOctoImage}
-            />
-            <ProjectCard
-              title="Brandmap"
-              description="A visual discovery platform that maps trending businesses, celebrities, and hotspots using geo-indexed data, API scraping, and real-time ranking algorithms to track popularity and local engagement patterns."
-              tags={['React', 'Map API', 'Social Media', 'Trends']}
-              link="https://map-o7bz.onrender.com"
-              status="in development"
-              image={BrandMapImage}
-            />
-            <ProjectCard
-              title="GhostBrand"
-              description="An All in one solution for Personal Brands to sell anything Online"
-              tags={['UI/UX', 'Branding', 'Design System']}
-              link="https://ghostbrand.onrender.com/"
-              status="in development"
-              image={GhostBrandImage}
-            />
-            <ProjectCard
-              title="Gig Advance"
-              description="Fintech platform that verifies identity using Aadhaar, Links bank account using SETU API, analyzes earnings history, and provides instant advance payouts to gig workers through automated underwriting and risk modeling."
-              tags={['React', 'Node.js', 'Aadhar Verification', 'Loan App']}
-              link="https://giga-483t.onrender.com/"
-              status="in development"
-              image={GigAdvanceImage}
-            />
-            <ProjectCard
-              title="Analytics Dashboard"
-              description="Refresh it again & again as the backend takes around 50 seconds to start due to free host plan. A demo project that helps administrators of a Fantasy Betting Platform's monitor user behavior, financials, and team preferences."
-              tags={['React', 'Node.js', 'Machine Learning', 'Data Analytics']}
-              link="https://fantasy11-3vnl.onrender.com/"
-              status="complete"
-              image={AnalyticsImage}
-            />
-            <ProjectCard
-              title="PinkSync"
-              description="Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours."
-              tags={['React', 'Next.js', 'Location Services', 'Safety Tech']}
-              link="https://pinksync.onrender.com/"
-              status="complete"
-              image={PinkSyncImage}
-            />
-            <ProjectCard
-              title="Nutrination.AI"
-              description="AI-driven health assistant offering personalized nutrition guidance, daily routines, risk scores, and habit reinforcement using user health data, behavior modeling, and LLM reasoning"
-              tags={['React', 'AI', 'Healthcare', 'Python']}
-              link="https://storied-cocada-8bfcc4.netlify.app/"
-              status="in development"
-              image={NutrinationImage}
-            />
-            <ProjectCard
-              title="Megheza"
-              description="Global Professional Network for Verified Journalists to connect collaborate and Grow"
-              tags={['React', 'Next.js', 'AWS', 'Next.Js']}
-              link="https://megheza.com/"
-              status="complete"
-              image={MeghezaImage}
-            />
-            <ProjectCard
-              title="Konark"
-              description="Coding companion capable of repo generation, code completion, debugging assistance, and project scaffolding — powered by LLMs, embeddings, and streaming response architecture."
-              tags={['React', 'Coding Assistant', 'GPT-OSS', 'WebApp']}
-              link="https://konark.onrender.com"
-              status="complete"
-              image={KonarkImage}
-            />
+          <div className="sec-hdr reveal" data-delay="0">
+            <h2>Projects</h2>
+            <p className="sec-sub">Things I've shipped</p>
+          </div>
+          <div className="proj-grid">
+            {PROJECTS.map((p, i) => (
+              <article key={p.title} className="proj-card reveal" data-delay={String((i % 3) * 90)} {...tilt}>
+                <div className="shine" />
+                <div className="proj-img">
+                  <img src={p.image} alt={p.title} loading="lazy" />
+                  <div className="proj-overlay" />
+                  <span className={`badge ${p.status === 'complete' ? 'live' : 'dev'}`}>
+                    {p.status === 'complete' ? '✓ Live' : '⚡ In Dev'}
+                  </span>
+                </div>
+                <div className="proj-body">
+                  <h3>{p.title}</h3>
+                  <p>{p.description}</p>
+                  <div className="tags">
+                    {p.tags.map((t) => <span key={t} className="tag">{t}</span>)}
+                  </div>
+                  {p.link && (
+                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="proj-link">Live Demo →</a>
+                  )}
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
+        {/* ══ EXPERIENCE ═══════════════════════════════════════════════════ */}
         <section id="experience">
-          <h2>Experience</h2>
-          <div className="experience-grid">
-            <ExperienceCard
-              date="Feb 2026 - Present"
-              title="AI Engineer"
-              company="WeLaunch · Full-time · Remote"
-              description="Building full-stack and agentic AI systems at WeLaunch, contributing across the entire product lifecycle — from backend architecture and API integrations to deploying LLM-powered workflows and automation pipelines."
-              tags={['Full Stack Development', 'Agentic AI', 'LLMs', 'API Integration', 'Automation']}
-            />
-            <ExperienceCard
-              date="Jan 2026 - Feb 2026"
-              title="AI Engineer Intern"
-              company="Vela (YC W26) · Remote"
-              description="Vela is a Y Combinator-backed AI assistant that helps people schedule meetings effortlessly — no back-and-forth, no chaos. She books interviews, coordinates across clients & candidates, and handles the back-and-forth so you don't have to."
-              tags={['Agentic AI', 'Scheduling Automation', 'LLMs', 'YC W26']}
-            />
-            <ExperienceCard
-              date="Dec 2025 - Present"
-              title="Co-Founder"
-              company="VoiceCopilot AI"
-              description="Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7. Built the core voice agentic infrastructure, real-time call handling pipelines, and business integration layer."
-              tags={['Voice AI', 'Agentic AI', 'Early Stage Ventures', 'Full Stack Development', 'Entrepreneurship']}
-            />
-            <ExperienceCard
-              date="Aug 2025 - Present"
-              title="Co-Founder"
-              company="Scribing · Part-time · Remote"
-              description="Our AI listens to every consultation, transcribes it in real time, and instantly converts it into structured, ready-to-use medical templates, while intelligently evaluating ICD-10 codes. Built the speech-to-text pipeline, LLM-based medical entity extraction, and clinical template generation system."
-              tags={['AI Medical Scribe', 'Speech Recognition', 'LLMs', 'Healthcare Tech', 'Entrepreneurship']}
-            />
-            <ExperienceCard
-              date="May 2025 - Present"
-              title="Member"
-              company="FounderCult · Part-time · India"
-              description="All the tools, services & connections startup founders need — to build smarter, move faster & grow together. Active contributor in a founder ecosystem providing resources, vetted services, and collaboration channels for early-stage startups."
-              tags={['Start-up Ventures', 'MERN Stack', 'Community Building', 'Entrepreneurship']}
-            />
-            <ExperienceCard
-              date="Jan 2025 - Present"
-              title="SDE"
-              company="AM Megheza"
-              description="Global Professional Network for Verified Journalists. Founding Engineer. I was hired for Designing, building, updating, and maintaining the Company’s website and web applications—both front-end and back-end functionality— ensuring responsiveness, interactivity, and compatibility across devices and platforms. Hosting and Server Management: Configuring and managing web hosting, server infrastructure, domain integration, and deployment environments, including implementation of security patches and SSL certifications. Technical Operations: Maintaining updated records of system logs, documenting development processes, version control repositories, and carrying out regular data backups to ensure uninterrupted operations. "
-              tags={['Full Stack Development', 'AWS' , 'Team Collaboration']}
-            />
-            <ExperienceCard
-              date="March 2025 - Present"
-              title="Founder"
-              company="Drocto"
-              description="Pioneering a child-friendly AI ecosystem designed to enhance how kids interact with technology—intelligently, safely, and purposefully. Our goal is to create an AI-powered platform that offers brain-positive digital experiences tailored specifically for children, combining education, engagement, and ethical tech usage."
-              tags={['Full Stack Webb Development','Team Management', 'Strategic Planning', 'Entrepreneurship']}
-            />
-            <ExperienceCard
-              date="Aug 2024 - Present"
-              title="Founder"
-              company="MyWaiter"
-              description="A full-stack web application that allows diners to scan a table-specific QR code, view the live menu, place orders, and even pay — all without downloading any app or calling a waiter. The system allowed restaurant staff to: Receive real-time order notifications from any table Update menus instantly (out-of-stock, time-based items, etc.) Reduce wait times and optimize staff resources. Increase the Average Order Value by pushing items using ML."
-              tags={['Full Stack Webb Development','Team Management', 'Strategic Planning', 'Entrepreneurship']}
-            />
-            <ExperienceCard
-              date="Oct 2022 - May 2024"
-              title="Content and Marketing Strategist"
-              company="Indian Institute of Technology, Madras"
-              description="Shaped connections at Alumni and Corporate Relations by curating compelling content."
-              tags={['Corporate Communications', 'Content Marketing', 'Social Media Strategy', 'Crisis Management']}
-            />
-            <ExperienceCard
-              date="Apr 2020 - Present"
-              title="Freelance VFX/GFX Designer"
-              company="Fiverr"
-              description="Working as a freelance graphic designer and brand management designer."
-              tags={['Graphic Design', 'Brand Management', 'Visual Effects', 'Copywriting']}
-            />
+          <div className="sec-hdr reveal" data-delay="0">
+            <h2>Experience</h2>
+            <p className="sec-sub">Where I've worked & built</p>
+          </div>
+          <div className="exp-list">
+            {EXPERIENCES.map((ex, i) => (
+              <div key={i} className="exp-card reveal" data-delay={String(i * 70)} {...tilt}>
+                <div className="shine" />
+                <div className="exp-accent" />
+                <span className="date-chip">{ex.date}</span>
+                <h3>{ex.title}</h3>
+                <h4>{ex.company}</h4>
+                <p>{ex.description}</p>
+                <div className="tags">
+                  {ex.tags.map((t) => <span key={t} className="tag">{t}</span>)}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
+        {/* ══ EDUCATION ════════════════════════════════════════════════════ */}
         <section id="education">
-          <h2>Education</h2>
-          <div className="education-grid">
-            <EducationCard
-              date="2021 - 2025"
-              degree="Bachelor of Science - BS, Data Science"
-              institution="Indian Institute of Technology, Madras"
-              description="Focusing on Python, Data Analytics, Machine Learning Algorithms, and Database Management."
-            />
-            <EducationCard
-              date="Jul 2021 - Jul 2024"
-              degree="Bachelor of Business Administration - BBA"
-              institution="Amity University Online"
-            />
+          <div className="sec-hdr reveal" data-delay="0">
+            <h2>Education</h2>
+            <p className="sec-sub">Academic foundations</p>
+          </div>
+          <div className="edu-grid">
+            {EDUCATION.map((ed, i) => (
+              <div key={i} className="edu-card reveal" data-delay={String(i * 140)} {...tilt}>
+                <div className="shine" />
+                <div className="edu-accent" />
+                <span className="date-chip">{ed.date}</span>
+                <h3>{ed.degree}</h3>
+                <h4>{ed.institution}</h4>
+                {ed.description && <p>{ed.description}</p>}
+              </div>
+            ))}
           </div>
         </section>
 
+        {/* ══ SKILLS ═══════════════════════════════════════════════════════ */}
         <section id="skills">
-          <h2>Skills</h2>
-          <div className="skills">
-            <SkillCategory
-              title="Development"
-              skills={['Python', 'JavaScript', 'React', 'Node.js', 'Next.js', 'MongoDB', 'AWS','GCP', 'SQL', 'Anthropic SDK', 'CI/CD', 'OPEN AI SDK',"xAI SDK","Gemini SDK", "Kotlin & AndroidStudio(VibeCoding)"]}
-            />
-            <SkillCategory
-              title="Data Science & AI"
-              skills={['Data Analytics', 'Machine Learning', 'Database Management', 'Data Visualization', 'Fine Tuning', 'Vector Databses', 'RAG pipeline', 'Ollama', 'HuggingFace', 'LangChain']}
-            />
-            <SkillCategory
-              title="Design"
-              skills={['Graphic Design', 'UI/UX Design', 'Visual Effects', 'Brand Development']}
-            />
-            <SkillCategory
-              title="Content Creation"
-              skills={['GFX Design', 'VFX Design', 'Content Research', 'Content Writing', 'Content Curation', 'AI Generated Videos']}
-            />
+          <div className="sec-hdr reveal" data-delay="0">
+            <h2>Skills</h2>
+            <p className="sec-sub">My technical toolkit</p>
+          </div>
+          <div className="skills-grid">
+            {Object.entries(SKILLS).map(([cat, skills], ci) => (
+              <div key={cat} className="skill-card reveal" data-delay={String(ci * 110)} {...tilt}>
+                <div className="shine" />
+                <h3>{cat}</h3>
+                <div className="skill-tags">
+                  {skills.map((s, si) => (
+                    <span key={s} className="stag" style={{ animationDelay: `${si * 0.12}s` }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
+        {/* ══ CONTACT ══════════════════════════════════════════════════════ */}
         <section id="contact">
-          <h2>Get In Touch</h2>
-          <p>I'm always open to discussing new projects, creative ideas, or opportunities.</p>
-          <a
-            href="https://wa.link/pz0f28"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="cta"
-          >
-            Say Hello
-          </a>
+          <div className="contact-wrap reveal" data-delay="0">
+            <div className="contact-glow" />
+            <h2>Get In Touch</h2>
+            <p>I'm always open to discussing new projects, creative ideas, or opportunities.</p>
+            <a href="https://wa.link/pz0f28" target="_blank" rel="noopener noreferrer" className="btn-primary btn-lg">
+              Say Hello 👋
+            </a>
+          </div>
         </section>
       </main>
 
-      <footer>
-        <div className="social-links">
-          <a
-            href="http://linkedin.com/in/harx"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="LinkedIn"
-          >
-            <FontAwesomeIcon icon={faLinkedin} />
-          </a>
-          <a
-            href="https://www.instagram.com/the_cassini_huygens?igsh=enVoazF3ZHRpYTQ4"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Instagram"
-          >
-            <FontAwesomeIcon icon={faInstagram} />
-          </a>
-          <a
-            href="https://wa.link/pz0f28"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="WhatsApp"
-          >
-            <FontAwesomeIcon icon={faWhatsapp} />
-          </a>
+      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      <footer className="pf-footer">
+        <div className="socials">
+          {[
+            { href: 'http://linkedin.com/in/harx', icon: faLinkedin, label: 'LinkedIn' },
+            { href: 'https://www.instagram.com/the_cassini_huygens?igsh=enVoazF3ZHRpYTQ4', icon: faInstagram, label: 'Instagram' },
+            { href: 'https://wa.link/pz0f28', icon: faWhatsapp, label: 'WhatsApp' },
+          ].map(({ href, icon, label }) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer" title={label} className="social-a">
+              <FontAwesomeIcon icon={icon} />
+            </a>
+          ))}
         </div>
         <p>© 2025 Harx. All rights reserved.</p>
       </footer>
 
-      <style jsx>{`
+      {/* ══ STYLES ═══════════════════════════════════════════════════════════ */}
+      <style>{`
+        /* Reset */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { overflow-x:hidden; }
+
+        /* Tokens */
         :root {
-          --primary: #0070f3;
-          --secondary: #6c5ce7;
-          --accent: #00b894;
-          --shadow: rgba(0, 0, 0, 0.2);
+          --blue:   #0070f3;
+          --purple: #6c5ce7;
+          --teal:   #00b894;
+          --orange: #ffa500;
+          --ease:   cubic-bezier(0.16,1,0.3,1);
+          --font:   'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         }
-
         [data-theme='dark'] {
-          --bg: #0a0a0a;
-          --card-bg: #111111;
-          --text: #f5f5f5;
-          --text-secondary: #a0a0a0;
+          --bg:      #050508;
+          --bg2:     #0c0c14;
+          --card:    rgba(255,255,255,0.042);
+          --border:  rgba(255,255,255,0.08);
+          --text:    #ececf4;
+          --muted:   #8888a0;
+          --shadow:  rgba(0,0,0,0.6);
+          --glow:    rgba(0,112,243,0.25);
         }
-
         [data-theme='light'] {
-          --bg: #ffffff;
-          --card-bg: #f5f5f5;
-          --text: #333333;
-          --text-secondary: #666666;
-          --shadow: rgba(0, 0, 0, 0.1);
+          --bg:      #f0f4f8;
+          --bg2:     #e4eaf0;
+          --card:    rgba(255,255,255,0.72);
+          --border:  rgba(0,0,0,0.09);
+          --text:    #18182c;
+          --muted:   #55556a;
+          --shadow:  rgba(0,0,0,0.1);
+          --glow:    rgba(0,112,243,0.14);
         }
 
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-            Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        /* Base */
+        .pf {
+          background:var(--bg); color:var(--text);
+          font-family:var(--font); min-height:100vh; overflow-x:hidden;
         }
 
-        .portfolio {
-          background-color: var(--bg);
-          color: var(--text);
-          line-height: 1.6;
-          overflow-x: hidden;
+        /* Canvas */
+        .pf-canvas {
+          position:fixed; top:0; left:0;
+          width:100%; height:100%;
+          z-index:0; pointer-events:none; opacity:.55;
         }
 
-        header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.5rem 3rem;
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          background-color: var(--bg);
-          backdrop-filter: blur(10px);
-          z-index: 1000;
-          box-shadow: 0 2px 10px var(--shadow);
+        /* Scroll progress */
+        .scroll-bar {
+          position:fixed; top:0; left:0; height:3px;
+          background:linear-gradient(90deg,var(--blue),var(--purple));
+          z-index:9999; transition:width .12s linear;
+          border-radius:0 2px 2px 0;
         }
 
-        .logo {
-          font-weight: 700;
-          font-size: 1.8rem;
-          background: linear-gradient(90deg, var(--primary), var(--secondary));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+        /* ── Header ─────────────────────────────────────────────── */
+        .hdr {
+          position:fixed; top:0; left:0; right:0; z-index:1000;
+          display:flex; align-items:center; justify-content:space-between;
+          padding:1.1rem 3rem;
+          background:rgba(5,5,8,.74);
+          backdrop-filter:blur(22px) saturate(180%);
+          -webkit-backdrop-filter:blur(22px) saturate(180%);
+          border-bottom:1px solid var(--border);
+          transition:background .3s;
+        }
+        [data-theme='light'] .hdr { background:rgba(240,244,248,.84); }
+
+        .hdr-logo {
+          font-weight:900; font-size:1.55rem; letter-spacing:-.5px;
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+          background-clip:text; cursor:default; user-select:none;
         }
 
-        nav ul {
-          display: flex;
-          list-style: none;
-          gap: 2rem;
+        .hdr-nav ul { display:flex; list-style:none; gap:.15rem; }
+        .hdr-nav ul li a {
+          display:block; padding:.48rem .9rem;
+          color:var(--muted); text-decoration:none;
+          font-weight:500; font-size:.88rem; border-radius:8px;
+          transition:all .2s; position:relative;
+        }
+        .hdr-nav ul li a:hover,
+        .hdr-nav ul li a.active { color:var(--text); background:var(--card); }
+        .hdr-nav ul li a.active::after {
+          content:''; position:absolute;
+          bottom:4px; left:50%; transform:translateX(-50%);
+          width:4px; height:4px; border-radius:50%;
+          background:var(--blue);
         }
 
-        nav ul li a {
-          color: var(--text);
-          text-decoration: none;
-          font-weight: 500;
-          padding: 0.5rem 1rem;
-          transition: all 0.3s ease;
-          position: relative;
+        .hdr-right { display:flex; align-items:center; gap:.65rem; }
+
+        .support-btn {
+          padding:.5rem 1.1rem;
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          color:#fff; text-decoration:none;
+          font-weight:700; font-size:.82rem; border-radius:50px;
+          transition:all .3s; white-space:nowrap;
+        }
+        .support-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--glow); filter:brightness(1.1); }
+
+        .icon-btn {
+          background:var(--card); border:1px solid var(--border);
+          color:var(--muted); cursor:pointer;
+          width:38px; height:38px; border-radius:10px;
+          display:flex; align-items:center; justify-content:center;
+          font-size:.95rem; transition:all .2s;
+        }
+        .icon-btn:hover { color:var(--text); background:var(--border); }
+        .menu-btn { display:none; }
+
+        /* ── Layout ─────────────────────────────────────────────── */
+        .pf-main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 2rem; }
+        section { padding:7rem 0; }
+
+        /* Section header */
+        .sec-hdr { margin-bottom:3.5rem; }
+        .sec-hdr h2 {
+          font-size:clamp(2rem,5vw,3.2rem); font-weight:900; letter-spacing:-1.5px;
+          background:linear-gradient(135deg,var(--text) 0%,var(--muted) 100%);
+          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+          background-clip:text; margin-bottom:.4rem;
+        }
+        .sec-sub { color:var(--muted); font-size:1.05rem; }
+
+        /* Reveal animation */
+        .reveal {
+          opacity:0;
+          transform:translateY(38px) perspective(700px) rotateX(7deg);
+          transition:opacity .72s var(--ease), transform .72s var(--ease);
+        }
+        .reveal.vis {
+          opacity:1;
+          transform:translateY(0) perspective(700px) rotateX(0deg);
         }
 
-        nav ul li a::after {
-          content: '';
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: 0;
-          left: 50%;
-          background: var(--primary);
-          transition: all 0.3s ease;
-          transform: translateX(-50%);
-        }
-
-        nav ul li a:hover::after {
-          width: 100%;
-        }
-
-        nav ul li a:hover {
-          color: var(--primary);
-        }
-
-        .mobile-menu {
-          display: none;
-          cursor: pointer;
-          font-size: 1.8rem;
-          color: var(--text);
-        }
-
-        .theme-toggle {
-          cursor: pointer;
-          font-size: 1.5rem;
-          color: var(--text);
-          transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-          color: var(--primary);
-          transform: scale(1.1);
-        }
-
-        .header-buttons {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .support-button {
-          display: inline-block;
-          background: linear-gradient(90deg, var(--primary), var(--secondary));
-          color: white;
-          padding: 0.8rem 1.5rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          font-size: 0.9rem;
-          transition: all 0.3s ease;
-        }
-
-        .support-button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 20px var(--shadow);
-          filter: brightness(1.1);
-        }
-
-        main {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 2rem 1.5rem;
-          padding-top: 6rem;
-        }
-
-        section {
-          margin-bottom: 6rem;
-          padding: 2rem 0;
-        }
-
-        h1,
-        h2,
-        h3 {
-          font-weight: 700;
-          line-height: 1.2;
-        }
-
-        h1 {
-          font-size: 3.5rem;
-          margin-bottom: 1.5rem;
-          background: linear-gradient(90deg, var(--primary), var(--secondary));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        h2 {
-          font-size: 2.5rem;
-          margin-bottom: 2.5rem;
-          position: relative;
-        }
-
-        h2::after {
-          content: '';
-          position: absolute;
-          width: 60px;
-          height: 4px;
-          background: linear-gradient(90deg, travis: var(--primary), var(--secondary));
-          bottom: -15px;
-          left: 0;
-          border-radius: 2px;
-        }
-
-        p {
-          margin-bottom: 1.5rem;
-          font-size: 1.1rem;
-          color: var(--text-secondary);
-        }
-
+        /* ── Hero ───────────────────────────────────────────────── */
         .hero {
-          min-height: 90vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: flex-start;
+          min-height:100vh;
+          display:flex; flex-direction:column;
+          align-items:center; justify-content:center;
+          text-align:center; position:relative;
+          padding-top:6rem; overflow:hidden;
         }
 
-        .hero-content {
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-          margin-bottom: 1.5rem;
+        /* Ambient blobs */
+        .blob { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; }
+        .blob-1 {
+          width:600px; height:600px;
+          background:radial-gradient(circle,rgba(0,112,243,.15),transparent 70%);
+          top:-10%; left:-10%;
+          animation:blobDrift 14s ease-in-out infinite;
+        }
+        .blob-2 {
+          width:500px; height:500px;
+          background:radial-gradient(circle,rgba(108,92,231,.12),transparent 70%);
+          bottom:-5%; right:-8%;
+          animation:blobDrift 18s ease-in-out infinite reverse;
+        }
+        .blob-3 {
+          width:350px; height:350px;
+          background:radial-gradient(circle,rgba(0,184,148,.09),transparent 70%);
+          top:50%; left:50%; transform:translate(-50%,-50%);
+          animation:blobDrift 10s ease-in-out infinite 3s;
+        }
+        @keyframes blobDrift {
+          0%,100% { transform:translate(0,0) scale(1); }
+          33%      { transform:translate(30px,-25px) scale(1.06); }
+          66%      { transform:translate(-20px,20px) scale(.96); }
         }
 
-        .user-image {
-          width: 100px;
-          height: 100px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 3px solid var(--primary);
-          box-shadow: 0 0 10px rgba(0, 112, 243, 0.3);
+        /* Hero inner */
+        .hero-inner {
+          display:flex; flex-direction:column;
+          align-items:center; gap:2.2rem;
+          z-index:1; max-width:760px;
+          animation:heroFade 1s var(--ease) both;
+        }
+        @keyframes heroFade {
+          from{opacity:0;transform:translateY(28px)}
+          to{opacity:1;transform:translateY(0)}
         }
 
-        .loading-container {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: var(--card-bg);
+        /* Avatar */
+        .avatar-wrap { position:relative; width:150px; height:150px; flex-shrink:0; }
+        .avatar-ring {
+          position:absolute; inset:-9px; border-radius:50%;
+          background:conic-gradient(var(--blue),var(--purple),var(--teal),var(--blue));
+          animation:spin 4.5s linear infinite;
+        }
+        .avatar-ring::before {
+          content:''; position:absolute; inset:4px;
+          border-radius:50%; background:var(--bg);
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .avatar-img {
+          position:absolute; inset:0; width:100%; height:100%;
+          border-radius:50%; object-fit:cover; z-index:1;
+        }
+        .avatar-glow {
+          position:absolute; inset:-24px; border-radius:50%;
+          background:radial-gradient(circle,rgba(0,112,243,.32),transparent 70%);
+          pointer-events:none; animation:glowPulse 3.5s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+          0%,100%{opacity:.4;transform:scale(1)}
+          50%{opacity:.85;transform:scale(1.07)}
         }
 
-        .hero p {
-          font-size: 1.5rem;
-          max-width: 800px;
-          margin-bottom: 2.5rem;
+        /* Hero text */
+        .hero-copy { text-align:center; }
+        .hero-hi { color:var(--muted); font-size:1.05rem; margin-bottom:.4rem; letter-spacing:.04em; }
+        .hero-name {
+          font-size:clamp(3rem,9vw,6rem); font-weight:900;
+          letter-spacing:-3px; line-height:1;
+          background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--teal) 100%);
+          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+          background-clip:text; margin-bottom:1rem;
+        }
+        .hero-role {
+          font-size:clamp(1.15rem,3vw,1.75rem); font-weight:600;
+          color:var(--text); min-height:2.4rem; margin-bottom:1.5rem;
+        }
+        .tw-text { color:var(--text); }
+        .tw-cursor {
+          display:inline-block; width:2px; margin-left:2px;
+          background:var(--blue); color:transparent;
+          animation:blink .8s step-end infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        .hero-bio {
+          color:var(--muted); font-size:.98rem; line-height:1.82;
+          max-width:640px; margin:0 auto 2rem;
+        }
+        .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+        /* Buttons */
+        .btn-primary {
+          display:inline-block;
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          color:#fff; text-decoration:none;
+          padding:.82rem 2rem; border-radius:50px;
+          font-weight:700; font-size:.93rem;
+          transition:all .3s ease; position:relative; overflow:hidden;
+        }
+        .btn-primary:hover { transform:translateY(-3px); box-shadow:0 16px 32px var(--glow); filter:brightness(1.1); }
+
+        .btn-ghost {
+          display:inline-block; background:transparent; color:var(--text);
+          text-decoration:none; padding:.82rem 2rem; border-radius:50px;
+          font-weight:700; font-size:.93rem;
+          border:2px solid var(--border); transition:all .3s;
+          backdrop-filter:blur(8px);
+        }
+        .btn-ghost:hover { border-color:var(--blue); color:var(--blue); transform:translateY(-3px); background:rgba(0,112,243,.06); }
+        .btn-lg { padding:1rem 2.6rem; font-size:1.05rem; }
+
+        /* Scroll cue */
+        .scroll-cue {
+          margin-top:2.8rem; z-index:1; background:none; border:none;
+          cursor:pointer; animation:cueFade 1s 1.2s both;
+        }
+        @keyframes cueFade {
+          from{opacity:0;transform:translateY(8px)}
+          to{opacity:1;transform:translateY(0)}
+        }
+        .cue-mouse {
+          width:26px; height:42px;
+          border:2px solid var(--muted); border-radius:13px;
+          display:flex; justify-content:center; padding-top:6px;
+        }
+        .cue-dot {
+          width:4px; height:9px; background:var(--blue); border-radius:2px;
+          animation:cueBounce 2s ease-in-out infinite;
+        }
+        @keyframes cueBounce {
+          0%,100%{transform:translateY(0);opacity:1}
+          80%{transform:translateY(12px);opacity:0}
         }
 
-        .cta {
-          display: inline-block;
-          background: linear-gradient(90deg, var(--primary), var(--secondary));
-          color: white;
-          padding: 1rem 2.5rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          transition: all 0.3s ease;
-          margin-right: 1rem;
+        /* ── Shared card ────────────────────────────────────────── */
+        .proj-card,.exp-card,.edu-card,.skill-card {
+          position:relative; overflow:hidden;
+          background:var(--card); border:1px solid var(--border); border-radius:20px;
+          transform-style:preserve-3d; will-change:transform;
+          transition:border-color .3s, box-shadow .3s;
+        }
+        .proj-card:hover,.exp-card:hover,.edu-card:hover,.skill-card:hover {
+          border-color:rgba(0,112,243,.35);
+          box-shadow:0 20px 50px var(--shadow),0 0 0 1px rgba(0,112,243,.1);
+        }
+        .shine {
+          position:absolute; inset:0; z-index:2;
+          pointer-events:none; border-radius:inherit;
+          transition:background .08s;
         }
 
-        .cta:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 20px var(--shadow);
-          filter: brightness(1.1);
-        }
-
-        .cta-secondary {
-          display: inline-block;
-          background: transparent;
-          color: var(--primary);
-          padding: 1rem 2.5rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          border: 2px solid var(--primary);
-          transition: all 0.3s ease;
-        }
-
-        .cta-secondary:hover {
-          background: var(--primary);
-          color: white;
-          border-color: transparent;
-          transform: translateY(-3px);
-        }
-
-        .projects {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 2rem;
-        }
-
-        .project-card {
-          background-color: var(--card-bg);
-          border-radius: 15px;
-          overflow: hidden;
-          transition: all 0.3s ease;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .project-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 15px 30px var(--shadow);
-        }
-
-        .project-img {
-          width: 100%;
-          height: 200px;
-          background-color: var(--card-bg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2rem;
-          font-weight: 700;
-          color: var(--primary);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .project-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .project-img::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
-        }
-
-        .project-info {
-          padding: 2rem;
-        }
-
-        .project-info h3 {
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-          color: var(--text);
-        }
-
-        .status-section {
-          margin: 1rem 0;
-        }
-
-        .status {
-          display: inline-block;
-          padding: 0.4rem 0.8rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .status.complete {
-          background-color: rgba(0, 184, 148, 0.1);
-          color: var(--accent);
-        }
-
-        .status.in-development {
-          background-color: rgba(255, 165, 0, 0.1);
-          color: #ffa500;
-        }
-
+        /* Tags */
+        .tags { display:flex; flex-wrap:wrap; gap:.38rem; margin-top:.8rem; }
         .tag {
-          display: inline-block;
-          background-color: rgba(0, 112, 243, 0.1);
-          color: var(--primary);
-          padding: 0.4rem 0.8rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
-          margin-right: 0.5rem;
-          margin-bottom: 0.5rem;
-          transition: all 0.3s ease;
+          padding:.28rem .65rem; border-radius:20px;
+          font-size:.76rem; font-weight:500;
+          background:rgba(0,112,243,.1); color:var(--blue);
+          border:1px solid rgba(0,112,243,.18); transition:all .2s;
+        }
+        .tag:hover { background:var(--blue); color:#fff; border-color:transparent; }
+
+        .date-chip {
+          display:inline-block; padding:.28rem .72rem; border-radius:20px;
+          font-size:.76rem; font-weight:600;
+          background:rgba(0,112,243,.1); color:var(--blue);
+          border:1px solid rgba(0,112,243,.22);
         }
 
-        .tag:hover {
-          background-color: var(--primary);
-          color: white;
+        /* ── Projects ───────────────────────────────────────────── */
+        .proj-grid {
+          display:grid;
+          grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
+          gap:1.4rem;
+        }
+        .proj-img { position:relative; height:205px; overflow:hidden; }
+        .proj-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+        .proj-card:hover .proj-img img { transform:scale(1.06); }
+        .proj-overlay {
+          position:absolute; inset:0;
+          background:linear-gradient(to bottom,transparent 38%,var(--bg) 100%);
+          opacity:.72;
+        }
+        [data-theme='light'] .proj-overlay {
+          background:linear-gradient(to bottom,transparent 38%,rgba(240,244,248,.92) 100%);
+        }
+        .badge {
+          position:absolute; top:11px; right:11px;
+          padding:.28rem .7rem; border-radius:20px;
+          font-size:.73rem; font-weight:700; backdrop-filter:blur(12px);
+        }
+        .badge.live { background:rgba(0,184,148,.18); color:var(--teal); border:1px solid rgba(0,184,148,.3); }
+        .badge.dev  { background:rgba(255,165,0,.14); color:var(--orange); border:1px solid rgba(255,165,0,.3); }
+        .proj-body { padding:1.4rem 1.6rem; }
+        .proj-body h3 { font-size:1.2rem; font-weight:800; margin:.5rem 0 .5rem; color:var(--text); }
+        .proj-body p  { font-size:.875rem; color:var(--muted); line-height:1.65; }
+        .proj-link {
+          display:inline-block; margin-top:.8rem;
+          color:var(--blue); text-decoration:none;
+          font-size:.875rem; font-weight:600; transition:color .2s;
+        }
+        .proj-link:hover { color:var(--purple); }
+
+        /* ── Experience ─────────────────────────────────────────── */
+        .exp-list { display:flex; flex-direction:column; gap:1.2rem; }
+        .exp-card { padding:1.7rem 1.9rem 1.7rem 2.5rem; }
+        .exp-accent {
+          position:absolute; top:0; left:0; width:4px; height:100%;
+          border-radius:20px 0 0 20px;
+          background:linear-gradient(to bottom,var(--blue),var(--purple));
+        }
+        .exp-card h3 { font-size:1.18rem; font-weight:800; margin:.52rem 0 .22rem; color:var(--text); }
+        .exp-card h4 { font-size:.87rem; font-weight:500; color:var(--blue); margin-bottom:.7rem; }
+        .exp-card p  { font-size:.875rem; color:var(--muted); line-height:1.65; }
+
+        /* ── Education ──────────────────────────────────────────── */
+        .edu-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.4rem; }
+        .edu-card { padding:2rem 2rem 2rem 2.5rem; }
+        .edu-accent {
+          position:absolute; top:0; left:0; width:4px; height:100%;
+          border-radius:20px 0 0 20px;
+          background:linear-gradient(to bottom,var(--purple),var(--teal));
+        }
+        .edu-card h3 { font-size:1.18rem; font-weight:800; margin:.52rem 0 .3rem; color:var(--text); }
+        .edu-card h4 { font-size:.87rem; font-weight:600; color:var(--purple); margin-bottom:.7rem; }
+        .edu-card p  { font-size:.875rem; color:var(--muted); line-height:1.65; }
+
+        /* ── Skills ─────────────────────────────────────────────── */
+        .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(275px,1fr)); gap:1.4rem; }
+        .skill-card { padding:2rem; }
+        .skill-card h3 {
+          font-size:.82rem; font-weight:800;
+          color:var(--blue); margin-bottom:1.2rem;
+          text-transform:uppercase; letter-spacing:.08em;
+        }
+        .skill-tags { display:flex; flex-wrap:wrap; gap:.45rem; }
+        .stag {
+          padding:.42rem .88rem; border-radius:20px;
+          font-size:.8rem; font-weight:500;
+          background:var(--border); color:var(--text);
+          border:1px solid var(--border); transition:all .25s;
+          animation:floatTag 3.8s ease-in-out infinite;
+        }
+        .stag:hover {
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          color:#fff; border-color:transparent; transform:translateY(-2px);
+        }
+        @keyframes floatTag {
+          0%,100%{transform:translateY(0)}
+          50%{transform:translateY(-3px)}
         }
 
-        .experience-grid,
-        .education-grid {
-          display: grid;
-          gap: 2rem;
+        /* ── Contact ────────────────────────────────────────────── */
+        #contact { text-align:center; }
+        .contact-wrap { padding:5rem 2rem; position:relative; }
+        .contact-glow {
+          position:absolute; inset:0; border-radius:24px;
+          background:radial-gradient(ellipse at 50% 0%,rgba(0,112,243,.12),transparent 70%);
+          pointer-events:none;
+        }
+        .contact-wrap h2 {
+          font-size:clamp(2rem,5vw,3.5rem); font-weight:900;
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+          background-clip:text; margin-bottom:1rem;
+        }
+        .contact-wrap p { color:var(--muted); font-size:1.08rem; margin-bottom:2.2rem; }
+
+        /* ── Footer ─────────────────────────────────────────────── */
+        .pf-footer {
+          position:relative; z-index:1;
+          text-align:center; padding:4rem 2rem;
+          border-top:1px solid var(--border); background:var(--bg2);
+        }
+        .socials { display:flex; justify-content:center; gap:.9rem; margin-bottom:1.4rem; }
+        .social-a {
+          width:48px; height:48px; border-radius:14px;
+          display:flex; align-items:center; justify-content:center;
+          background:var(--card); border:1px solid var(--border);
+          color:var(--muted); text-decoration:none; font-size:1.1rem;
+          transition:all .3s;
+        }
+        .social-a:hover {
+          background:linear-gradient(135deg,var(--blue),var(--purple));
+          color:#fff; border-color:transparent;
+          transform:translateY(-4px); box-shadow:0 10px 24px var(--glow);
+        }
+        .pf-footer p { color:var(--muted); font-size:.88rem; }
+
+        /* ── Responsive ─────────────────────────────────────────── */
+        @media(max-width:1024px){
+          .hdr { padding:1rem 1.75rem; }
+          .pf-main { padding:0 1.5rem; }
+          .proj-grid { grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
         }
 
-        .experience-card,
-        .education-card {
-          background-color: var(--card-bg);
-          border-radius: 15px;
-          padding: 2rem;
-          position: relative;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.3s ease;
-        }
-
-        .experience-card:hover,
-        .education-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px var(--shadow);
-        }
-
-        .experience-card::before,
-        .education-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 4px;
-          height: 100%;
-          background: linear-gradient(to bottom, var(--primary), var(--secondary));
-        }
-
-        .education-card::before {
-          background: linear-gradient(to bottom, var(--secondary), var(--accent));
-        }
-
-        .experience-card h3,
-        .education-card h3 {
-          font-size: 1.4rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .experience-card h4,
-        .education-card h4 {
-          font-size: 1.1rem;
-          font-weight: 500;
-          color: var(--text-secondary);
-          margin-bottom: 1rem;
-        }
-
-        .date {
-          display: inline-block;
-          background-color: rgba(0, 112, 243, 0.1);
-          color: var(--primary);
-          padding: 0.4rem 0.8rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
-          margin-bottom: 1rem;
-        }
-
-        .skills {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .skill-category {
-          background-color: var(--card-bg);
-          border-radius: 15px;
-          padding: 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.3s ease;
-        }
-
-        .skill-category:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px var(--shadow);
-        }
-
-        .skill-category h3 {
-          font-size: 1.4rem;
-          margin-bottom: 1.5rem;
-          color: var(--primary);
-        }
-
-        .skill-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.75rem;
-        }
-
-        .skill-tag {
-          background-color: rgba(0, 112, 243, 0.1);
-          color: var(--text);
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          transition: all 0.3s ease;
-        }
-
-        .skill-tag:hover {
-          background-color: var(--primary);
-          color: white;
-        }
-
-        footer {
-          text-align: center;
-          padding: 4rem 1.5rem;
-          background-color: var(--card-bg);
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .social-links {
-          display: flex;
-          justify-content: center;
-          gap: 1rem;
-          margin-bottom: 2rem;
-        }
-
-        .social-links a {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background-color: var(--bg);
-          transition: all 0.3s ease;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: var(--text);
-        }
-
-        .social-links a:hover {
-          background: linear-gradient(45deg, var(--primary), var(--secondary));
-          transform: translateY(-5px);
-          box-shadow: 0 5px 15px var(--shadow);
-        }
-
-        @media (max-width: 768px) {
-          header {
-            padding: 1rem 1.5rem;
+        @media(max-width:768px){
+          .hdr { padding:.9rem 1.2rem; }
+          .hdr-nav {
+            display:none; position:fixed; inset:0;
+            background:var(--bg); flex-direction:column;
+            align-items:center; justify-content:center; z-index:998;
           }
+          .hdr-nav.open { display:flex; }
+          .hdr-nav ul { flex-direction:column; align-items:center; gap:.4rem; }
+          .hdr-nav ul li a { font-size:1.35rem; padding:.75rem 2.5rem; }
+          .menu-btn { display:flex; }
+          .support-btn { display:none; }
+          .pf-main { padding:0 1rem; }
+          section { padding:5rem 0; }
+          .hero { padding-top:4.5rem; }
+          .blob { display:none; }
+          .hero-btns { flex-direction:column; align-items:center; }
+          .btn-primary,.btn-ghost { width:100%; max-width:280px; text-align:center; }
+          .proj-grid { grid-template-columns:1fr; }
+          .edu-grid  { grid-template-columns:1fr; }
+          .skills-grid { grid-template-columns:1fr; }
+        }
 
-          nav {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: var(--card-bg);
-            padding-top: 5rem;
-          }
-
-          nav.active {
-            display: block;
-          }
-
-          nav ul {
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-          }
-
-          nav ul li a {
-            font-size: 1.2rem;
-          }
-
-          .mobile-menu {
-            display: block;
-          }
-
-          .header-buttons {
-            gap: 0.5rem;
-          }
-
-          .support-button {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.8rem;
-          }
-
-          .theme-toggle {
-            margin-right: 0;
-            font-size: 1.3rem;
-          }
-
-          h1 {
-            font-size: 2.5rem;
-          }
-
-          h2 {
-            font-size: 2rem;
-          }
-
-          .hero {
-            min-height: auto;
-            padding: 4rem 0;
-          }
-
-          .hero-content {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-          }
-
-          .user-image {
-            width: 80px;
-            height: 80px;
-          }
-
-          .loading-container {
-            width: 80px;
-            height: 80px;
-          }
-
-          .hero p {
-            font-size: 1.2rem;
-          }
-
-          .cta,
-          .cta-secondary {
-            padding: 0.8rem 2rem;
-          }
-
-          .projects {
-            grid-template-columns: 1fr;
-          }
+        @media(max-width:480px){
+          .hero-name { font-size:2.8rem; letter-spacing:-1.5px; }
+          .hero-role  { font-size:1.1rem; }
+          .avatar-wrap { width:120px; height:120px; }
+          .sec-hdr h2 { font-size:1.8rem; }
         }
       `}</style>
     </div>
