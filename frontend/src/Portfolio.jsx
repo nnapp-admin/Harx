@@ -24,10 +24,20 @@ import VoiceImage from './assets/Voicecopilotai.jpg';
 import DecodeImage from './assets/19decode.jpg';
 import FacilityImage from './assets/Facility19.jpg';
 import PostgirlImage from './assets/Postgirl.jpg';
+import AstronomicaImage from './assets/Astronomica.jpg';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PROJECTS = [
+  {
+    title: 'Astronomica',
+    description:
+      'AI-powered SAT preparation platform featuring retrieval-augmented generation (RAG), custom knowledge bases, adaptive practice modules, and intelligent student performance evaluation.',
+    tags: ['Next.js', 'AWS', 'RAG', 'Custom KB', 'Agentic AI'],
+    link: 'https://student.astronomica.ai/',
+    status: 'complete',
+    image: AstronomicaImage,
+  },
   {
     title: 'Scribing',
     description:
@@ -78,7 +88,7 @@ const PROJECTS = [
     description:
       'A text-based AI sales agent trained to mimic high-performing sales reps. Uses LLM reasoning, objection-handling flows, tone adaptation, and CRM-style structured outputs to close leads.',
     tags: ['React', 'TypeScript', 'AWS', 'GPT-OSS'],
-    link: 'https://salescat.org/',
+    link: 'https://salescat.onrender.com/',
     status: 'complete',
     image: SalescatImage,
   },
@@ -96,7 +106,7 @@ const PROJECTS = [
     description:
       'A unified ecosystem where startup founders access tools, vetted service providers, community discussions, and collaboration channels. Built with role-based access and scalable server architecture.',
     tags: ['React', 'AWS', 'Next.js'],
-    link: 'https://foundercult.com/',
+    link: 'https://foundercult.onrender.com/',
     status: 'complete',
     image: FounderImage,
   },
@@ -105,7 +115,7 @@ const PROJECTS = [
     description:
       'QR-based restaurant automation platform enabling real-time ordering, live menu sync, staff dashboards, and ML-powered upsell suggestions. Designed to reduce service friction.',
     tags: ['React', 'Node.js', 'MongoDB', 'Restaurant Tech'],
-    link: 'https://mywaiter.in',
+    link: 'https://mywaiter-p2w3.onrender.com/',
     status: 'complete',
     image: MyWaiterImage,
   },
@@ -114,7 +124,7 @@ const PROJECTS = [
     description:
       'A reasoning-based AI decision agent that evaluates multiple options, compares outcomes, and generates structured recommendations using multi-step thought processes and confidence scoring.',
     tags: ['React', 'AI', 'Decision Making', 'Python'],
-    link: 'https://skord.club/',
+    link: 'https://skord-g2rv.onrender.com/',
     status: 'complete',
     image: SkordImage,
   },
@@ -123,7 +133,7 @@ const PROJECTS = [
     description:
       'Interactive AI learning environment for kids with safety guardrails, adaptive difficulty, feedback loops, and gamified reinforcement systems — designed to build critical thinking.',
     tags: ['React', 'AI', 'Development Tools', 'Automation'],
-    link: 'https://drocto.in',
+    link: 'https://drocto.onrender.com/',
     status: 'complete',
     image: DrOctoImage,
   },
@@ -357,8 +367,6 @@ const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [scrollPct, setScrollPct] = useState(0);
 
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
   const cursorRef = useRef(null);
 
   // Load theme
@@ -389,122 +397,7 @@ const Portfolio = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Canvas space animation — stars + comets
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const isDark = theme === 'dark';
-    const isMobile = window.innerWidth < 768;
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const STAR_COUNT = isMobile ? 120 : 280;
-    const stars = Array.from({ length: STAR_COUNT }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 1.5 + 0.3,
-      baseOpacity: Math.random() * 0.55 + 0.25,
-      twinkleSpeed: Math.random() * 0.018 + 0.004,
-      twinklePhase: Math.random() * Math.PI * 2,
-      hue: [210, 220, 260, 180][Math.floor(Math.random() * 4)],
-    }));
-
-    const comets = [];
-    let frame = 0;
-    let nextCometAt = 60 + Math.floor(Math.random() * 100);
-
-    const spawnComet = () => {
-      const speed = 5 + Math.random() * 5;
-      const angle = Math.PI / 4 + (Math.random() - 0.5) * (Math.PI / 4);
-      comets.push({
-        x: Math.random() * canvas.width * 0.7,
-        y: Math.random() * canvas.height * 0.4,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 1,
-        decay: 0.007 + Math.random() * 0.005,
-        len: 80 + Math.random() * 130,
-        w: 1.2 + Math.random() * 0.9,
-        hue: Math.random() > 0.5 ? 210 : 260,
-      });
-    };
-
-    const tick = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      frame++;
-
-      stars.forEach((s) => {
-        const opacity = s.baseOpacity * (0.55 + 0.45 * Math.sin(frame * s.twinkleSpeed + s.twinklePhase));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = isDark
-          ? `hsla(${s.hue},70%,88%,${opacity})`
-          : `hsla(${s.hue},60%,32%,${opacity * 0.55})`;
-        ctx.fill();
-
-        if (s.r > 1.1) {
-          const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.5);
-          g.addColorStop(0, isDark ? `hsla(${s.hue},80%,90%,${opacity * 0.35})` : `hsla(${s.hue},70%,35%,${opacity * 0.18})`);
-          g.addColorStop(1, 'transparent');
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
-          ctx.fillStyle = g;
-          ctx.fill();
-        }
-      });
-
-      if (frame >= nextCometAt) {
-        spawnComet();
-        nextCometAt = frame + 200 + Math.floor(Math.random() * 160);
-      }
-
-      for (let i = comets.length - 1; i >= 0; i--) {
-        const c = comets[i];
-        c.x += c.vx;
-        c.y += c.vy;
-        c.life -= c.decay;
-        if (c.life <= 0 || c.x > canvas.width + 300 || c.y > canvas.height + 300) {
-          comets.splice(i, 1);
-          continue;
-        }
-        const norm = Math.hypot(c.vx, c.vy);
-        const tx = c.x - (c.vx / norm) * c.len;
-        const ty = c.y - (c.vy / norm) * c.len;
-        const g = ctx.createLinearGradient(c.x, c.y, tx, ty);
-        g.addColorStop(0, isDark ? `hsla(${c.hue},100%,92%,${c.life})` : `hsla(${c.hue},100%,42%,${c.life * 0.75})`);
-        g.addColorStop(0.4, isDark ? `hsla(${c.hue},85%,75%,${c.life * 0.5})` : `hsla(${c.hue},85%,38%,${c.life * 0.35})`);
-        g.addColorStop(1, 'transparent');
-        ctx.beginPath();
-        ctx.moveTo(c.x, c.y);
-        ctx.lineTo(tx, ty);
-        ctx.strokeStyle = g;
-        ctx.lineWidth = c.w * c.life;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-        const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 6);
-        hg.addColorStop(0, isDark ? `hsla(${c.hue},100%,96%,${c.life})` : `hsla(${c.hue},100%,48%,${c.life * 0.8})`);
-        hg.addColorStop(1, 'transparent');
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = hg;
-        ctx.fill();
-      }
-
-      animRef.current = requestAnimationFrame(tick);
-    };
-    tick();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [theme, isPageLoaded]);
 
 
   // Scroll progress + active section + reveal
@@ -596,8 +489,7 @@ const Portfolio = () => {
       {/* Custom cursor */}
       <div ref={cursorRef} className="custom-cursor" />
 
-      {/* Particle canvas */}
-      <canvas ref={canvasRef} className="pf-canvas" />
+
 
       {/* Top scroll progress */}
       <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
@@ -782,7 +674,7 @@ const Portfolio = () => {
             </a>
           ))}
         </div>
-        <p>© 2025 Harx. All rights reserved.</p>
+        <p>© 2026 Harx. All rights reserved.</p>
       </footer>
 
       {/* ══ STYLES ═══════════════════════════════════════════════════════════ */}
@@ -839,12 +731,7 @@ const Portfolio = () => {
           font-family:var(--font); min-height:100vh; overflow-x:hidden;
         }
 
-        /* Canvas */
-        .pf-canvas {
-          position:fixed; top:0; left:0;
-          width:100%; height:100%;
-          z-index:0; pointer-events:none; opacity:1;
-        }
+
 
         /* Scroll progress */
         .scroll-bar {
