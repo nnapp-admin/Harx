@@ -48,15 +48,6 @@ const PROJECTS = [
     image: ScribingImage,
   },
   {
-    title: 'VoiceCopilot',
-    description:
-      'Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7.',
-    tags: ['React', 'TypeScript', 'AWS', 'Voice Agent', 'Agentic AI'],
-    link: 'https://voicecopilotai.com',
-    status: 'complete',
-    image: VoiceImage,
-  },
-  {
     title: '19Decode',
     description:
       'Sports prediction platform powered by custom machine learning models that analyze historical data, player performance, and real-time match factors to generate accurate game insights.',
@@ -70,7 +61,7 @@ const PROJECTS = [
     description:
       'AI-powered facility management platform that automates operations such as scheduling, dispatch, vendor coordination, and resident communication.',
     tags: ['React', 'TypeScript', 'AWS', 'AI Automation', 'Workflow Management', 'SaaS'],
-    link: 'https://facility19.com',
+    link: 'https://welaunch.ai/',
     status: 'complete',
     image: FacilityImage,
   },
@@ -127,15 +118,6 @@ const PROJECTS = [
     link: 'https://skord-g2rv.onrender.com/',
     status: 'complete',
     image: SkordImage,
-  },
-  {
-    title: 'drOcto',
-    description:
-      'Interactive AI learning environment for kids with safety guardrails, adaptive difficulty, feedback loops, and gamified reinforcement systems — designed to build critical thinking.',
-    tags: ['React', 'AI', 'Development Tools', 'Automation'],
-    link: 'https://drocto.onrender.com/',
-    status: 'complete',
-    image: DrOctoImage,
   },
   {
     title: 'Brandmap',
