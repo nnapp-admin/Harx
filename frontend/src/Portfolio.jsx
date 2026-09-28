@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon, faPenNib } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import NeonStrings from './NeonStrings';
 import AnalyticsImage from './assets/Analytics.jpg';
@@ -315,6 +316,7 @@ const Typewriter = ({ texts, speed = 80 }) => {
 // ─── Main Portfolio ────────────────────────────────────────────────────────────
 
 const Portfolio = () => {
+  const navigate = useNavigate();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -949,9 +951,23 @@ const Portfolio = () => {
             ))}
           </div>
         </div>
-        <button className="nav-pill-theme" onClick={toggleTheme} aria-label="Toggle theme">
-          <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
-        </button>
+        <div className="nav-pill-actions">
+          <button
+            className="nav-pill-btn nav-pill-article"
+            onClick={() => navigate('/article')}
+            title="Articles"
+            aria-label="View Articles"
+          >
+            <FontAwesomeIcon icon={faPenNib} />
+          </button>
+          <button
+            className="nav-pill-btn nav-pill-theme"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+          </button>
+        </div>
       </header>
 
       {/* ══ FULLSCREEN HERO ═════════════════════════════════════════ */}
@@ -1341,7 +1357,15 @@ Developer, Entrepreneur building intelligent systems from concept to scale. Spec
           border-color: rgba(225, 29, 72, 0.45);
         }
 
-        .nav-pill-theme {
+        .nav-pill-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.32rem;
+          margin-left: 0.35rem;
+          flex-shrink: 0;
+        }
+
+        .nav-pill-btn {
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.12);
           color: #ffffff;
@@ -1352,23 +1376,30 @@ Developer, Entrepreneur building intelligent systems from concept to scale. Spec
           align-items: center;
           justify-content: center;
           font-size: 0.82rem;
-          margin-left: 0.35rem;
           transition: all 0.22s ease;
           flex-shrink: 0;
           cursor: pointer;
         }
-        .nav-pill-theme:hover {
-          background: rgba(255, 255, 255, 0.18);
+        .nav-pill-btn:hover {
+          background: rgba(244, 63, 94, 0.22);
+          border-color: rgba(244, 63, 94, 0.45);
           color: #ffffff;
-          transform: rotate(20deg);
+          box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+          transform: scale(1.06);
         }
-        [data-theme='light'] .nav-pill-theme {
+        .nav-pill-theme:hover {
+          transform: rotate(20deg) scale(1.06);
+        }
+        [data-theme='light'] .nav-pill-btn {
           background: rgba(0, 0, 0, 0.05);
           border: 1px solid rgba(0, 0, 0, 0.1);
           color: #1f2937;
         }
-        [data-theme='light'] .nav-pill-theme:hover {
-          background: rgba(0, 0, 0, 0.1);
+        [data-theme='light'] .nav-pill-btn:hover {
+          background: rgba(225, 29, 72, 0.12);
+          border-color: rgba(225, 29, 72, 0.35);
+          color: #be123c;
+          box-shadow: 0 0 12px rgba(225, 29, 72, 0.2);
         }
 
         /* ── Layout ─────────────────────────────────────────────── */
