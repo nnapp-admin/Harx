@@ -378,6 +378,17 @@ const Portfolio = () => {
   const canvasRef = useRef(null);
   const mouseRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2, active: false });
   const smoothedAngleRef = useRef(0);
+  const gyroRef = useRef({ x: 0, y: 0, active: false });
+  const smoothedGyroRef = useRef({ x: 0, y: 0 });
+
+  // Detect mobile / touch devices where gyroscope replaces cursor tracking
+  const isMobileScreen = () => {
+    return (
+      window.innerWidth <= 1024 ||
+      ('ontouchstart' in window) ||
+      (navigator.maxTouchPoints > 0 && window.innerWidth <= 1200)
+    );
+  };
 
   // Preload 207 perimeter frames + 8-way inward sets + center.webp + angle map
   useEffect(() => {
@@ -467,8 +478,10 @@ const Portfolio = () => {
   }, []);
 
   // Track cursor position for dot & head tracking (locked until reveal finishes, only visible when user moves mouse)
+  // On mobile screens, cursor/touch tracking is disabled on the character; gyroscope is used instead.
   useEffect(() => {
     const handleMouseMove = (e) => {
+      if (isMobileScreen()) return;
       if (!isRevealedRef.current) return;
       if (!isCursorActiveRef.current) {
         ringPosRef.current = { x: e.clientX, y: e.clientY };
@@ -481,6 +494,7 @@ const Portfolio = () => {
       }
     };
     const handleTouchMove = (e) => {
+      if (isMobileScreen()) return;
       if (!isRevealedRef.current) return;
       if (e.touches && e.touches.length > 0) {
         const touch = e.touches[0];
@@ -506,6 +520,81 @@ const Portfolio = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  // Gyroscope tracking for mobile screens (calibrated opposite parallax)
+  useEffect(() => {
+    const handleOrientation = (e) => {
+      if (!isRevealedRef.current) return;
+      const gamma = e.gamma; // Left-to-Right tilt [-90, 90]
+      const beta = e.beta;   // Front-to-Back tilt [-180, 180]
+      if (gamma === null || beta === null) return;
+
+      // Neutral reading when holding phone naturally while browsing (~50 deg upright)
+      const neutralBeta = 50.0;
+      const neutralGamma = 0.0;
+
+      // Delta from comfortable holding angle
+      const dGamma = gamma - neutralGamma;
+      const dBeta = beta - neutralBeta;
+
+      // Deadband filter: ignore micro hand tremors (< 1.5 deg) so character stays serene
+      const absDGamma = Math.abs(dGamma);
+      const absDBeta = Math.abs(dBeta);
+
+      const filteredGamma = absDGamma > 1.5 ? (absDGamma - 1.5) * Math.sign(dGamma) : 0;
+      const filteredBeta = absDBeta > 1.5 ? (absDBeta - 1.5) * Math.sign(dBeta) : 0;
+
+      // "Opposive" (inverted) gyroscope parallax:
+      // When phone tilts RIGHT (dGamma > 0), character turns LEFT (virtualX < 0)
+      // When phone tilts LEFT (dGamma < 0), character turns RIGHT (virtualX > 0)
+      // When phone tilts TOP AWAY (dBeta < 0), character tilts UP (virtualY < 0)
+      // When phone tilts TOP TOWARD (dBeta > 0), character tilts DOWN (virtualY > 0)
+      // Sensitivity factor: ~6.2px per degree gives natural reach to r_outer (190px) at ~30 deg tilt
+      const SENSITIVITY = 6.2;
+      const MAX_OFFSET = 210;
+
+      const targetX = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, -filteredGamma * SENSITIVITY));
+      const targetY = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, filteredBeta * SENSITIVITY));
+
+      gyroRef.current = {
+        x: targetX,
+        y: targetY,
+        active: true,
+      };
+    };
+
+    // iOS 13+ permission support & auto-initialization
+    const initGyro = async () => {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          if (permission === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation, true);
+          }
+        } catch {
+          // Graceful fallback to center pose if permission is denied
+        }
+      } else if (typeof window !== 'undefined' && 'ondeviceorientation' in window) {
+        window.addEventListener('deviceorientation', handleOrientation, true);
+      }
+    };
+
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const handleFirstInteraction = () => {
+        initGyro();
+        window.removeEventListener('touchstart', handleFirstInteraction);
+        window.removeEventListener('touchend', handleFirstInteraction);
+      };
+      window.addEventListener('touchstart', handleFirstInteraction, { passive: true, once: true });
+      window.addEventListener('touchend', handleFirstInteraction, { passive: true, once: true });
+    } else {
+      initGyro();
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation, true);
     };
   }, []);
 
@@ -563,17 +652,35 @@ const Portfolio = () => {
       const faceCenterX = rect.left + offsetX + renderedW * 0.4896;
       const faceCenterY = rect.top + offsetY + renderedH * 0.3611;
 
-      const dx = mouse.x - faceCenterX;
-      const dy = mouse.y - faceCenterY;
-      const dist = Math.hypot(dx, dy);
+      let effDx = mouse.x - faceCenterX;
+      let effDy = mouse.y - faceCenterY;
+      let effDist = Math.hypot(effDx, effDy);
+      let effActive = mouse.active;
+
+      // On mobile screens, use smoothed gyroscope offsets instead of mouse/touch
+      if (isMobileScreen()) {
+        if (gyroRef.current.active) {
+          smoothedGyroRef.current.x += (gyroRef.current.x - smoothedGyroRef.current.x) * 0.16;
+          smoothedGyroRef.current.y += (gyroRef.current.y - smoothedGyroRef.current.y) * 0.16;
+          effDx = smoothedGyroRef.current.x;
+          effDy = smoothedGyroRef.current.y;
+          effDist = Math.hypot(effDx, effDy);
+          effActive = true;
+        } else {
+          effDx = 0;
+          effDy = 0;
+          effDist = 0;
+          effActive = false;
+        }
+      }
 
       // Transition boundaries (inner direct eye-contact sweet spot vs full perimeter reach)
       const r_inner = 38;
       const r_outer = 190;
-      const isDirectCenter = !mouse.active || dist <= r_inner;
+      const isDirectCenter = !effActive || effDist <= r_inner;
 
       // Calculate cursor angle relative to face center
-      const targetAngle = Math.atan2(dy, dx);
+      const targetAngle = Math.atan2(effDy, effDx);
 
       // Shortest-path circular angular lerp with responsive factor ~0.38 (~40ms tracking)
       let diff = (targetAngle - smoothedAngleRef.current) % (2 * Math.PI);
@@ -615,7 +722,7 @@ const Portfolio = () => {
 
       if (!isRevealedRef.current || isDirectCenter) {
         imgToDraw = centerImageRef.current;
-      } else if (isInSeamZone && dist >= r_outer) {
+      } else if (isInSeamZone && effDist >= r_outer) {
         // On the perimeter at the seam — use the outermost in_up frame (index 0)
         // which is the same head pose as the perimeter but avoids the seam jump
         const inUpList = inUpImagesRef.current;
@@ -625,9 +732,9 @@ const Portfolio = () => {
           const frames = frameImagesRef.current;
           imgToDraw = frames && frames[frameIndex] ? frames[frameIndex] : centerImageRef.current;
         }
-      } else if (dist < r_outer) {
-        // Cursor is in transition zone towards center
-        const progress = Math.max(0, Math.min(1, (dist - r_inner) / (r_outer - r_inner)));
+      } else if (effDist < r_outer) {
+        // Cursor / gyro is in transition zone towards center
+        const progress = Math.max(0, Math.min(1, (effDist - r_inner) / (r_outer - r_inner)));
 
         // Calculate cursor direction in degrees [0, 360)
         const angleDeg = (((targetAngle * 180 / Math.PI) % 360) + 360) % 360;
@@ -859,8 +966,7 @@ const Portfolio = () => {
           <p className="hero-hi-spaced">Hi, I'm</p>
           <h1 className="hero-script-name">Harx🔱</h1>
           <p className="hero-compact-bio">
-            Full-Stack Developer crafting high-performance, intelligent digital experiences from concept to scale. Specialized in modern web architectures and agentic AI.
-          </p>
+Developer, Entrepreneur building intelligent systems from concept to scale. Specialized in agentic AI, multimodal interfaces, AI infrastructure, modern web architectures, and automation.            </p>
           <div className="hero-pill-btns">
             <a href="#experience" className="pill-btn-solid" onClick={(e) => scrollTo(e, '#experience')}>
               <span>Experience</span>
@@ -962,7 +1068,7 @@ const Portfolio = () => {
             <div className="shine" />
             <div className="skills-overview-accent" />
             <p className="skills-overview-text">
-              Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.
+              I have hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.
             </p>
           </div>
           <div className="skills-grid">
@@ -1062,6 +1168,12 @@ const Portfolio = () => {
           border-color: rgba(255, 255, 255, 0.95);
           background: rgba(255, 255, 255, 0.14);
           box-shadow: 0 0 24px rgba(255, 255, 255, 0.35);
+        }
+
+        @media (max-width: 1024px), (pointer: coarse) {
+          .cursor-dot, .cursor-ring {
+            display: none !important;
+          }
         }
 
         /* Tokens */
