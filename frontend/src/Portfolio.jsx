@@ -2,13 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import Lottie from 'react-lottie';
 import UserImage from './assets/User.jpg';
-import LoadingAnimation from './assets/Loading.json';
 import AnalyticsImage from './assets/Analytics.jpg';
 import ScribingImage from './assets/scribing.jpg';
 import BrandMapImage from './assets/BrandMapmap.jpg';
-import DrOctoImage from './assets/drOcto.jpg';
 import GhostBrandImage from './assets/GhostBrand.jpg';
 import GigAdvanceImage from './assets/GigAdvance.jpg';
 import MyWaiterImage from './assets/MyWaiter.jpg';
@@ -20,7 +17,6 @@ import FounderImage from './assets/Foundercult.jpg';
 import MeghezaImage from './assets/Megheza.jpg';
 import SalescatImage from './assets/Salescat.jpg';
 import StarlookImage from './assets/Starlook.jpg';
-import VoiceImage from './assets/Voicecopilotai.jpg';
 import DecodeImage from './assets/19decode.jpg';
 import FacilityImage from './assets/Facility19.jpg';
 import PostgirlImage from './assets/Postgirl.jpg';
@@ -209,14 +205,6 @@ const EXPERIENCES = [
     tags: ['Agentic AI', 'Scheduling Automation', 'LLMs', 'YC W26'],
   },
   {
-    date: 'Dec 2025 - Present',
-    title: 'Co-Founder',
-    company: 'VoiceCopilot AI',
-    description:
-      'Powering businesses with AI voice agents that answer every call, qualify leads, book appointments, and handle customer inquiries — 24/7. Built the core voice agentic infrastructure and real-time call handling pipelines.',
-    tags: ['Voice AI', 'Agentic AI', 'Early Stage Ventures', 'Full Stack Development', 'Entrepreneurship'],
-  },
-  {
     date: 'Aug 2025 - Present',
     title: 'Co-Founder',
     company: 'Scribing · Part-time · Remote',
@@ -239,22 +227,6 @@ const EXPERIENCES = [
     description:
       'Global Professional Network for Verified Journalists. Founding Engineer responsible for designing, building, and maintaining the website and web applications, server management, and security.',
     tags: ['Full Stack Development', 'AWS', 'Team Collaboration'],
-  },
-  {
-    date: 'March 2025 - Present',
-    title: 'Founder',
-    company: 'Drocto',
-    description:
-      'Pioneering a child-friendly AI ecosystem designed to enhance how kids interact with technology — intelligently, safely, and purposefully.',
-    tags: ['Full Stack Development', 'Team Management', 'Strategic Planning', 'Entrepreneurship'],
-  },
-  {
-    date: 'Aug 2024 - Present',
-    title: 'Founder',
-    company: 'MyWaiter',
-    description:
-      'Full-stack web application that allows diners to scan a QR code, view live menus, place orders, and pay — without downloading any app. Restaurant staff get real-time order notifications and ML-powered upsell suggestions.',
-    tags: ['Full Stack Development', 'Team Management', 'Strategic Planning', 'Entrepreneurship'],
   },
   {
     date: 'Oct 2022 - May 2024',
@@ -344,6 +316,11 @@ const Typewriter = ({ texts, speed = 80 }) => {
 
 const Portfolio = () => {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const isRevealedRef = useRef(false);
+  const [isCursorActive, setIsCursorActive] = useState(false);
+  const isCursorActiveRef = useRef(false);
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('home');
   const [scrollPct, setScrollPct] = useState(0);
@@ -406,11 +383,23 @@ const Portfolio = () => {
     let loadedCount = 0;
     const TOTAL_PERIMETER = 207;
     const frames = new Array(TOTAL_PERIMETER);
+    let revealTriggered = false;
+
+    const triggerReveal = () => {
+      if (revealTriggered) return;
+      revealTriggered = true;
+      setIsRevealing(true);
+      setIsPageLoaded(true);
+      setTimeout(() => {
+        setIsRevealed(true);
+        isRevealedRef.current = true;
+      }, 1200);
+    };
 
     const checkLoaded = () => {
       loadedCount++;
-      if (loadedCount >= 15 || loadedCount >= TOTAL_PERIMETER + 1) {
-        setIsPageLoaded(true);
+      if (centerImageRef.current?.complete && (loadedCount >= 20 || loadedCount >= TOTAL_PERIMETER + 1)) {
+        triggerReveal();
       }
     };
 
@@ -470,47 +459,64 @@ const Portfolio = () => {
     loadInwardSet('in_upright', 10, inUpRightImagesRef);
 
     const fallbackTimer = setTimeout(() => {
-      setIsPageLoaded(true);
-    }, 4000);
+      triggerReveal();
+    }, 2500);
 
     return () => clearTimeout(fallbackTimer);
   }, []);
 
-  // Track cursor position for dot & head tracking
+  // Track cursor position for dot & head tracking (locked until reveal finishes, only visible when user moves mouse)
   useEffect(() => {
     const handleMouseMove = (e) => {
+      if (!isRevealedRef.current) return;
+      if (!isCursorActiveRef.current) {
+        ringPosRef.current = { x: e.clientX, y: e.clientY };
+        isCursorActiveRef.current = true;
+        setIsCursorActive(true);
+      }
       mouseRef.current = { x: e.clientX, y: e.clientY, active: true };
       if (cursorDotRef.current) {
         cursorDotRef.current.style.transform = `translate3d(${e.clientX - 4}px, ${e.clientY - 4}px, 0)`;
       }
     };
     const handleTouchMove = (e) => {
+      if (!isRevealedRef.current) return;
       if (e.touches && e.touches.length > 0) {
         const touch = e.touches[0];
+        if (!isCursorActiveRef.current) {
+          ringPosRef.current = { x: touch.clientX, y: touch.clientY };
+          isCursorActiveRef.current = true;
+          setIsCursorActive(true);
+        }
         mouseRef.current = { x: touch.clientX, y: touch.clientY, active: true };
         if (cursorDotRef.current) {
           cursorDotRef.current.style.transform = `translate3d(${touch.clientX - 4}px, ${touch.clientY - 4}px, 0)`;
         }
       }
     };
+    const handleMouseLeave = () => {
+      isCursorActiveRef.current = false;
+      setIsCursorActive(false);
+    };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
   // 60 FPS Zero-Ghosting Canvas Renderer & Magnetic Cursor Ring Lerp
   useEffect(() => {
-    if (!isPageLoaded) return;
     let animId;
 
     const render = () => {
       const mouse = mouseRef.current;
 
-      // Update Magnetic Trailing Cursor Ring with smooth lerp
-      if (cursorRingRef.current) {
+      // Update Magnetic Trailing Cursor Ring with smooth lerp (only once user moves mouse)
+      if (cursorRingRef.current && isCursorActiveRef.current) {
         ringPosRef.current.x += (mouse.x - ringPosRef.current.x) * 0.22;
         ringPosRef.current.y += (mouse.y - ringPosRef.current.y) * 0.22;
         const ringRadius = isHoveringRef.current ? 28 : 18;
@@ -606,7 +612,7 @@ const Portfolio = () => {
       if (seamDist > 180) seamDist = 360 - seamDist;
       const isInSeamZone = seamDist < SEAM_HALF;
 
-      if (isDirectCenter) {
+      if (!isRevealedRef.current || isDirectCenter) {
         imgToDraw = centerImageRef.current;
       } else if (isInSeamZone && dist >= r_outer) {
         // On the perimeter at the seam — use the outermost in_up frame (index 0)
@@ -689,7 +695,7 @@ const Portfolio = () => {
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [isPageLoaded]);
+  }, []);
 
 
 
@@ -762,26 +768,13 @@ const Portfolio = () => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const lottieOpts = {
-    loop: true, autoplay: true, animationData: LoadingAnimation,
-    rendererSettings: { preserveAspectRatio: 'xMidYMid slice' },
-  };
-
-  if (!isPageLoaded) {
-    return (
-      <div style={{ position:'fixed',inset:0,background:'#050508',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999 }}>
-        <Lottie options={lottieOpts} height={200} width={200} />
-      </div>
-    );
-  }
-
   const NAV = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
 
   return (
     <div data-theme={theme} className="pf">
-      {/* Custom Magnetic Cursor */}
-      <div ref={cursorDotRef} className="cursor-dot" />
-      <div ref={cursorRingRef} className={`cursor-ring${isHovering ? ' is-hovering' : ''}`} />
+      {/* Custom Magnetic Cursor (hidden completely during loading/reveal and until user moves mouse) */}
+      <div ref={cursorDotRef} className={`cursor-dot${!isCursorActive ? ' cursor-hidden' : ''}`} />
+      <div ref={cursorRingRef} className={`cursor-ring${isHovering ? ' is-hovering' : ''}${!isCursorActive ? ' cursor-hidden' : ''}`} />
 
       {/* Top scroll progress */}
       <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
@@ -850,7 +843,7 @@ const Portfolio = () => {
           ref={canvasRef}
           width={1920}
           height={1080}
-          className="hero-canvas"
+          className={`hero-canvas ${isRevealing ? 'hero-canvas-revealed' : 'hero-canvas-loading'}`}
           aria-label="Interactive character head rotation tracking cursor"
         />
 
@@ -1022,6 +1015,12 @@ const Portfolio = () => {
         body::-webkit-scrollbar { display:none; }
 
         /* Custom Magnetic Cursor */
+        .cursor-hidden {
+          opacity: 0 !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+
         .cursor-dot {
           position: fixed;
           top: 0;
@@ -1034,6 +1033,7 @@ const Portfolio = () => {
           pointer-events: none;
           z-index: 999999;
           will-change: transform;
+          transition: opacity 0.4s ease, visibility 0.4s ease;
         }
 
         .cursor-ring {
@@ -1049,7 +1049,7 @@ const Portfolio = () => {
           pointer-events: none;
           z-index: 999998;
           will-change: transform, width, height, border-color, background;
-          transition: width 0.22s var(--ease), height 0.22s var(--ease), border-color 0.22s ease, background 0.22s ease;
+          transition: width 0.22s var(--ease), height 0.22s var(--ease), border-color 0.22s ease, background 0.22s ease, opacity 0.4s ease, visibility 0.4s ease;
         }
 
         .cursor-ring.is-hovering {
@@ -1296,6 +1296,16 @@ const Portfolio = () => {
           /* Explicitly NO CSS 3D transforms: rock-solid motionless */
           transform: none !important;
           perspective: none !important;
+          will-change: filter;
+          transition: filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero-canvas-loading {
+          filter: blur(28px) brightness(0.85);
+        }
+
+        .hero-canvas-revealed {
+          filter: blur(0px) brightness(1.0);
         }
 
         .hero-vignette {
@@ -1513,15 +1523,27 @@ const Portfolio = () => {
           transition:background .08s;
         }
 
-        /* Tags */
+        /* Tags (Grey vibe) */
         .tags { display:flex; flex-wrap:wrap; gap:.38rem; margin-top:.8rem; }
         .tag {
-          padding:.28rem .65rem; border-radius:20px;
+          padding:.28rem .68rem; border-radius:20px;
           font-size:.76rem; font-weight:500;
-          background:rgba(244,63,94,.1); color:var(--blue);
-          border:1px solid rgba(244,63,94,.2); transition:all .2s;
+          background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.72);
+          border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(8px);
+          transition:all .2s ease;
         }
-        .tag:hover { background:var(--blue); color:#fff; border-color:transparent; }
+        .tag:hover {
+          background:rgba(255,255,255,0.12); color:#ffffff;
+          border-color:rgba(255,255,255,0.24); transform:translateY(-1px);
+        }
+        [data-theme='light'] .tag {
+          background:rgba(0,0,0,0.045); color:#4b5563;
+          border-color:rgba(0,0,0,0.1);
+        }
+        [data-theme='light'] .tag:hover {
+          background:rgba(0,0,0,0.09); color:#111827;
+          border-color:rgba(0,0,0,0.2);
+        }
 
         .date-chip {
           display:inline-block; padding:.28rem .72rem; border-radius:20px;
@@ -1550,7 +1572,7 @@ const Portfolio = () => {
           padding:.28rem .7rem; border-radius:20px;
           font-size:.73rem; font-weight:700; backdrop-filter:blur(12px);
         }
-        .badge.live { background:rgba(0,184,148,.18); color:var(--teal); border:1px solid rgba(0,184,148,.3); }
+        .badge.live { background:rgba(244,63,94,.18); color:var(--blue); border:1px solid rgba(244,63,94,.38); box-shadow:0 0 12px rgba(244,63,94,.15); }
         .badge.dev  { background:rgba(255,165,0,.14); color:var(--orange); border:1px solid rgba(255,165,0,.3); }
         .proj-body { padding:1.4rem 1.6rem; }
         .proj-body h3 { font-size:1.2rem; font-weight:800; margin:.5rem 0 .5rem; color:var(--text); }
