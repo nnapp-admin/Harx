@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import NeonStrings from './NeonStrings';
 import UserImage from './assets/User.jpg';
 import AnalyticsImage from './assets/Analytics.jpg';
 import ScribingImage from './assets/scribing.jpg';
@@ -779,6 +780,9 @@ const Portfolio = () => {
       {/* Top scroll progress */}
       <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
 
+      {/* 7 Interactive Neon Physics Strings in right black gap (elongates down to footer) */}
+      <NeonStrings isVisible={isRevealing} />
+
       {/* ── Floating Frosted-Glass Header Navigation Pill ────────── */}
       <header className="floating-nav-pill" aria-label="Main Navigation">
         <div className="nav-marquee-viewport">
@@ -1248,7 +1252,7 @@ const Portfolio = () => {
         }
 
         /* ── Layout ─────────────────────────────────────────────── */
-        .pf-main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 2rem; }
+        .pf-main { position:relative; z-index:4; max-width:1280px; margin:0 auto; padding:0 2rem; }
         section { padding:7rem 0; }
 
         /* Section header */
@@ -1315,6 +1319,28 @@ const Portfolio = () => {
           pointer-events: none;
           background: radial-gradient(circle at 75% 25%, transparent 45%, rgba(0, 0, 0, 0.45) 100%),
                       linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 30%, transparent 60%);
+        }
+
+        /* 7 Interactive Neon Physics Strings (Desktop Only - Spans Full Journey to Footer) */
+        .site-neon-strings {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 3;
+          pointer-events: none;
+          transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .site-neon-strings.strings-hidden {
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+
+        @media (max-width: 1200px) {
+          .site-neon-strings {
+            display: none !important;
+          }
         }
 
         /* Hero Typography (Bottom-Left) */
@@ -1669,11 +1695,11 @@ const Portfolio = () => {
 
         /* ── Footer ─────────────────────────────────────────────── */
         .pf-footer {
-          position:relative; z-index:1;
+          position:relative; z-index:4;
           text-align:center; padding:4rem 2rem;
-          border-top:1px solid var(--border); background:var(--bg);
+          border-top:1px solid var(--border); background:transparent;
         }
-        .socials { display:flex; justify-content:center; gap:.9rem; margin-bottom:1.4rem; }
+        .socials { position:relative; z-index:5; display:flex; justify-content:center; gap:.9rem; margin-bottom:1.4rem; }
         .social-a {
           width:48px; height:48px; border-radius:14px;
           display:flex; align-items:center; justify-content:center;
@@ -1686,7 +1712,7 @@ const Portfolio = () => {
           color:#fff; border-color:transparent;
           transform:translateY(-4px); box-shadow:0 10px 24px var(--glow);
         }
-        .pf-footer p { color:var(--muted); font-size:.88rem; }
+        .pf-footer p { position:relative; z-index:5; color:var(--muted); font-size:.88rem; }
 
         /* ── Responsive ─────────────────────────────────────────── */
         @media(max-width:1024px){
