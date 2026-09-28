@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import Lottie from 'react-lottie';
 import UserImage from './assets/User.jpg';
@@ -13,7 +13,7 @@ import GhostBrandImage from './assets/GhostBrand.jpg';
 import GigAdvanceImage from './assets/GigAdvance.jpg';
 import MyWaiterImage from './assets/MyWaiter.jpg';
 import NutrinationImage from './assets/Nutrination.jpg';
-import PinkSyncImage from './assets/PinkSync.jpg';
+import XerxesImage from './assets/Xerxes.jpg';
 import SkordImage from './assets/Skord.jpg';
 import KonarkImage from './assets/WifeCode.jpg';
 import FounderImage from './assets/Foundercult.jpg';
@@ -155,13 +155,13 @@ const PROJECTS = [
     image: AnalyticsImage,
   },
   {
-    title: 'PinkSync',
+    title: 'Xerxes',
     description:
-      'Meet the locket that alerts your circle and shares your location — instantly, accurately, for 36 hours.',
-    tags: ['React', 'Next.js', 'Location Services', 'Safety Tech'],
-    link: 'https://pinksync.onrender.com/',
-    status: 'complete',
-    image: PinkSyncImage,
+      'AI-powered demand intelligence platform that validates startup concepts before launch. Simulates multi-channel ad campaigns, calculates synthetic CAC/CPC projections, models target customer personas, and delivers data-backed go/no-go verdicts via multi-model LLM pipelines.',
+    tags: ['React', 'TypeScript', 'Paid Ads', 'OpenRouter', 'Gemini', 'Market Intelligence'],
+    link: 'https://github.com/nnapp-admin/ZeroAI', // Replace with your live demo URL
+    status: 'complete', // or 'in development'
+    image: XerxesImage,
   },
   {
     title: 'Nutrination.AI',
@@ -343,13 +343,17 @@ const Typewriter = ({ texts, speed = 80 }) => {
 // ─── Main Portfolio ────────────────────────────────────────────────────────────
 
 const Portfolio = () => {
-  const [isNavOpen, setIsNavOpen] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('home');
   const [scrollPct, setScrollPct] = useState(0);
 
-  const cursorRef = useRef(null);
+  // Custom Magnetic Cursor Refs & State
+  const cursorDotRef = useRef(null);
+  const cursorRingRef = useRef(null);
+  const ringPosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [isHovering, setIsHovering] = useState(false);
+  const isHoveringRef = useRef(false);
 
   // Load theme
   useEffect(() => {
@@ -357,27 +361,335 @@ const Portfolio = () => {
     setTheme(saved);
   }, []);
 
-  // Custom cursor
+  // Custom magnetic cursor hover listener
   useEffect(() => {
-    const move = (e) => {
-      const el = cursorRef.current;
-      if (!el) return;
-      el.style.transform = `translate(${e.clientX - 6}px, ${e.clientY - 6}px)`;
+    const handleMouseOver = (e) => {
+      const interactive = e.target.closest('a, button, input, textarea, select, [role="button"], .proj-card, .exp-card, .edu-card, .skill-card, .nav-pill-item, .pill-btn-solid, .pill-btn-frosted, .support-btn, .icon-btn');
+      if (interactive) {
+        setIsHovering(true);
+        isHoveringRef.current = true;
+      }
     };
-    document.addEventListener('mousemove', move);
-    return () => document.removeEventListener('mousemove', move);
+    const handleMouseOut = (e) => {
+      const interactive = e.target.closest('a, button, input, textarea, select, [role="button"], .proj-card, .exp-card, .edu-card, .skill-card, .nav-pill-item, .pill-btn-solid, .pill-btn-frosted, .support-btn, .icon-btn');
+      if (interactive) {
+        setIsHovering(false);
+        isHoveringRef.current = false;
+      }
+    };
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+    };
   }, []);
 
-  // Preload hero image
+  // Canvas & Character animation tracking refs
+  const frameImagesRef = useRef([]);
+  const angleMapRef = useRef([]);  // Exact angle (in degrees) for each perimeter frame
+  const inRightImagesRef = useRef([]);
+  const inDownRightImagesRef = useRef([]);
+  const inDownImagesRef = useRef([]);
+  const inDownLeftImagesRef = useRef([]);
+  const inLeftImagesRef = useRef([]);
+  const inUpLeftImagesRef = useRef([]);
+  const inUpImagesRef = useRef([]);
+  const inUpRightImagesRef = useRef([]);
+  const centerImageRef = useRef(null);
+  const canvasRef = useRef(null);
+  const mouseRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2, active: false });
+  const smoothedAngleRef = useRef(0);
+
+  // Preload 207 perimeter frames + 8-way inward sets + center.webp + angle map
   useEffect(() => {
-    const img = new Image();
-    img.src = UserImage;
-    const done = () => setIsPageLoaded(true);
-    img.onload = done;
-    img.onerror = done;
-    const t = setTimeout(done, 5000);
-    return () => clearTimeout(t);
+    let loadedCount = 0;
+    const TOTAL_PERIMETER = 207;
+    const frames = new Array(TOTAL_PERIMETER);
+
+    const checkLoaded = () => {
+      loadedCount++;
+      if (loadedCount >= 15 || loadedCount >= TOTAL_PERIMETER + 1) {
+        setIsPageLoaded(true);
+      }
+    };
+
+    // Load angle map JSON (maps each frame index to its exact angle in degrees)
+    fetch(`${process.env.PUBLIC_URL}/frames/angle_map.json`)
+      .then(res => res.json())
+      .then(map => { angleMapRef.current = map; })
+      .catch(() => {
+        // Fallback: generate uniform angle map
+        const fallback = [];
+        for (let i = 0; i < TOTAL_PERIMETER; i++) fallback.push(i * 360.0 / TOTAL_PERIMETER);
+        angleMapRef.current = fallback;
+      });
+
+    // Preload center.webp
+    const centerImg = new Image();
+    centerImg.src = `${process.env.PUBLIC_URL}/frames/center.webp`;
+    centerImg.onload = checkLoaded;
+    centerImg.onerror = () => {
+      centerImg.src = `${process.env.PUBLIC_URL}/center.webp`;
+      centerImg.onload = checkLoaded;
+      centerImg.onerror = checkLoaded;
+    };
+    centerImageRef.current = centerImg;
+
+    // Preload 207 perimeter frames (0..206)
+    for (let i = 0; i < TOTAL_PERIMETER; i++) {
+      const img = new Image();
+      img.src = `${process.env.PUBLIC_URL}/frames/${i}.webp`;
+      img.onload = checkLoaded;
+      img.onerror = checkLoaded;
+      frames[i] = img;
+    }
+    frameImagesRef.current = frames;
+
+    // Helper to preload inward transition sequence
+    const loadInwardSet = (prefix, count, ref) => {
+      const list = [];
+      for (let i = 0; i < count; i++) {
+        const img = new Image();
+        img.src = `${process.env.PUBLIC_URL}/frames/${prefix}_${i}.webp`;
+        img.onload = checkLoaded;
+        img.onerror = checkLoaded;
+        list.push(img);
+      }
+      ref.current = list;
+    };
+
+    // Preload all 8 high-density inward directional sets (77 frames total)
+    loadInwardSet('in_right', 10, inRightImagesRef);
+    loadInwardSet('in_downright', 9, inDownRightImagesRef);
+    loadInwardSet('in_down', 10, inDownImagesRef);
+    loadInwardSet('in_downleft', 8, inDownLeftImagesRef);
+    loadInwardSet('in_left', 10, inLeftImagesRef);
+    loadInwardSet('in_upleft', 9, inUpLeftImagesRef);
+    loadInwardSet('in_up', 11, inUpImagesRef);
+    loadInwardSet('in_upright', 10, inUpRightImagesRef);
+
+    const fallbackTimer = setTimeout(() => {
+      setIsPageLoaded(true);
+    }, 4000);
+
+    return () => clearTimeout(fallbackTimer);
   }, []);
+
+  // Track cursor position for dot & head tracking
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY, active: true };
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.transform = `translate3d(${e.clientX - 4}px, ${e.clientY - 4}px, 0)`;
+      }
+    };
+    const handleTouchMove = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        mouseRef.current = { x: touch.clientX, y: touch.clientY, active: true };
+        if (cursorDotRef.current) {
+          cursorDotRef.current.style.transform = `translate3d(${touch.clientX - 4}px, ${touch.clientY - 4}px, 0)`;
+        }
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  // 60 FPS Zero-Ghosting Canvas Renderer & Magnetic Cursor Ring Lerp
+  useEffect(() => {
+    if (!isPageLoaded) return;
+    let animId;
+
+    const render = () => {
+      const mouse = mouseRef.current;
+
+      // Update Magnetic Trailing Cursor Ring with smooth lerp
+      if (cursorRingRef.current) {
+        ringPosRef.current.x += (mouse.x - ringPosRef.current.x) * 0.22;
+        ringPosRef.current.y += (mouse.y - ringPosRef.current.y) * 0.22;
+        const ringRadius = isHoveringRef.current ? 28 : 18;
+        cursorRingRef.current.style.transform = `translate3d(${ringPosRef.current.x - ringRadius}px, ${ringPosRef.current.y - ringRadius}px, 0)`;
+      }
+
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const canvasW = rect.width;
+      const canvasH = rect.height;
+
+      // Original video aspect ratio: 1920 / 1080 = 16 / 9
+      const videoAspect = 1920 / 1080;
+      const canvasAspect = canvasW / (canvasH || 1);
+
+      let renderedW, renderedH, offsetX, offsetY;
+      if (canvasAspect > videoAspect) {
+        // Screen is wider than 16:9 -> top and bottom are cropped equally
+        renderedW = canvasW;
+        renderedH = canvasW / videoAspect;
+        offsetX = 0;
+        offsetY = (canvasH - renderedH) / 2;
+      } else {
+        // Screen is taller than 16:9 -> left and right are cropped equally
+        renderedH = canvasH;
+        renderedW = canvasH * videoAspect;
+        offsetX = (canvasW - renderedW) / 2;
+        offsetY = 0;
+      }
+
+      // Normalized character face center from the 1920x1080 character2.mp4 video:
+      // x = 940 / 1920 = 0.4896, y = 390 / 1080 = 0.3611
+      const faceCenterX = rect.left + offsetX + renderedW * 0.4896;
+      const faceCenterY = rect.top + offsetY + renderedH * 0.3611;
+
+      const dx = mouse.x - faceCenterX;
+      const dy = mouse.y - faceCenterY;
+      const dist = Math.hypot(dx, dy);
+
+      // Transition boundaries (inner direct eye-contact sweet spot vs full perimeter reach)
+      const r_inner = 38;
+      const r_outer = 190;
+      const isDirectCenter = !mouse.active || dist <= r_inner;
+
+      // Calculate cursor angle relative to face center
+      const targetAngle = Math.atan2(dy, dx);
+
+      // Shortest-path circular angular lerp with responsive factor ~0.38 (~40ms tracking)
+      let diff = (targetAngle - smoothedAngleRef.current) % (2 * Math.PI);
+      if (diff < -Math.PI) diff += 2 * Math.PI;
+      if (diff > Math.PI) diff -= 2 * Math.PI;
+      smoothedAngleRef.current += diff * 0.38;
+
+      // Map smoothed angle to nearest perimeter frame using angle map (207 non-uniform frames)
+      const twoPi = 2 * Math.PI;
+      const normAngle = ((smoothedAngleRef.current % twoPi) + twoPi) % twoPi;
+      const cursorDeg = (normAngle * 180 / Math.PI) % 360;
+      const angleMap = angleMapRef.current;
+      const totalFrames = frameImagesRef.current.length || 207;
+      let frameIndex = 0;
+      if (angleMap && angleMap.length > 0) {
+        // Binary search for closest angle in the sorted angle map
+        let bestDist = 360;
+        for (let i = 0; i < angleMap.length; i++) {
+          let d = Math.abs(angleMap[i] - cursorDeg);
+          if (d > 180) d = 360 - d;  // Wrap-around shortest distance
+          if (d < bestDist) { bestDist = d; frameIndex = i; }
+        }
+      } else {
+        frameIndex = Math.round((cursorDeg / 360) * totalFrames) % totalFrames;
+      }
+
+      // Select frame with smooth inward transition (using real video frames)
+      let imgToDraw = null;
+
+      // Seam patch: the one unavoidable video seam at ~269° (UP direction)
+      // where perimeter frame 206 jumps to frame 0 with a 23.6px delta.
+      // When the cursor sweeps through this 8° band on the outer perimeter,
+      // use the smooth in_up inward frames instead to bridge the gap.
+      const SEAM_CENTER = 269.0;
+      const SEAM_HALF = 4.0;
+      let seamDist = Math.abs(cursorDeg - SEAM_CENTER);
+      if (seamDist > 180) seamDist = 360 - seamDist;
+      const isInSeamZone = seamDist < SEAM_HALF;
+
+      if (isDirectCenter) {
+        imgToDraw = centerImageRef.current;
+      } else if (isInSeamZone && dist >= r_outer) {
+        // On the perimeter at the seam — use the outermost in_up frame (index 0)
+        // which is the same head pose as the perimeter but avoids the seam jump
+        const inUpList = inUpImagesRef.current;
+        if (inUpList && inUpList.length > 0) {
+          imgToDraw = inUpList[0];
+        } else {
+          const frames = frameImagesRef.current;
+          imgToDraw = frames && frames[frameIndex] ? frames[frameIndex] : centerImageRef.current;
+        }
+      } else if (dist < r_outer) {
+        // Cursor is in transition zone towards center
+        const progress = Math.max(0, Math.min(1, (dist - r_inner) / (r_outer - r_inner)));
+
+        // Calculate cursor direction in degrees [0, 360)
+        const angleDeg = (((targetAngle * 180 / Math.PI) % 360) + 360) % 360;
+        let chosenList = null;
+
+        // Select exact 8-way inward physical video trajectory:
+        // Right: [337.5°, 360°) U [0°, 22.5°)
+        if (angleDeg >= 337.5 || angleDeg < 22.5) {
+          chosenList = inRightImagesRef.current;
+        }
+        // Down-Right: [22.5°, 67.5°)
+        else if (angleDeg >= 22.5 && angleDeg < 67.5) {
+          chosenList = inDownRightImagesRef.current;
+        }
+        // Down: [67.5°, 112.5°)
+        else if (angleDeg >= 67.5 && angleDeg < 112.5) {
+          chosenList = inDownImagesRef.current;
+        }
+        // Down-Left: [112.5°, 157.5°)
+        else if (angleDeg >= 112.5 && angleDeg < 157.5) {
+          chosenList = inDownLeftImagesRef.current;
+        }
+        // Left: [157.5°, 202.5°)
+        else if (angleDeg >= 157.5 && angleDeg < 202.5) {
+          chosenList = inLeftImagesRef.current;
+        }
+        // Up-Left: [202.5°, 247.5°)
+        else if (angleDeg >= 202.5 && angleDeg < 247.5) {
+          chosenList = inUpLeftImagesRef.current;
+        }
+        // Up: [247.5°, 292.5°)
+        else if (angleDeg >= 247.5 && angleDeg < 292.5) {
+          chosenList = inUpImagesRef.current;
+        }
+        // Up-Right: [292.5°, 337.5°)
+        else {
+          chosenList = inUpRightImagesRef.current;
+        }
+
+        if (chosenList && chosenList.length > 0) {
+          const maxStep = chosenList.length - 1;
+          const step = Math.min(maxStep, Math.max(0, Math.round((1 - progress) * maxStep)));
+          imgToDraw = chosenList[step];
+        } else {
+          const frames = frameImagesRef.current;
+          imgToDraw = frames && frames[frameIndex] ? frames[frameIndex] : centerImageRef.current;
+        }
+      } else {
+        const frames = frameImagesRef.current;
+        imgToDraw = frames && frames[frameIndex] ? frames[frameIndex] : centerImageRef.current;
+      }
+
+      // Safety fallback
+      if (!imgToDraw || !imgToDraw.complete || imgToDraw.naturalWidth === 0) {
+        imgToDraw = centerImageRef.current;
+      }
+
+      // Draw EXACTLY ONE crisp frame at 100% opacity on the canvas (zero alpha-blend ghosting)
+      if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(imgToDraw, 0, 0, canvas.width, canvas.height);
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, [isPageLoaded]);
 
 
 
@@ -448,7 +760,6 @@ const Portfolio = () => {
   const scrollTo = (e, id) => {
     e.preventDefault();
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
-    setIsNavOpen(false);
   };
 
   const lottieOpts = {
@@ -468,71 +779,106 @@ const Portfolio = () => {
 
   return (
     <div data-theme={theme} className="pf">
-      {/* Custom cursor */}
-      <div ref={cursorRef} className="custom-cursor" />
-
-
+      {/* Custom Magnetic Cursor */}
+      <div ref={cursorDotRef} className="cursor-dot" />
+      <div ref={cursorRingRef} className={`cursor-ring${isHovering ? ' is-hovering' : ''}`} />
 
       {/* Top scroll progress */}
       <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <header className="hdr">
-        <div className="hdr-logo">Portfolio</div>
-        <div className="hdr-right">
-          <a href="https://razorpay.me/@cassinicorp" target="_blank" rel="noopener noreferrer" className="support-btn">
-            Support Me
-          </a>
-          <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
-            <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
-          </button>
-          <button className="icon-btn menu-btn" onClick={() => setIsNavOpen((o) => !o)} aria-label="Menu">
-            <FontAwesomeIcon icon={isNavOpen ? faTimes : faBars} />
-          </button>
+      {/* ── Floating Frosted-Glass Header Navigation Pill ────────── */}
+      <header className="floating-nav-pill" aria-label="Main Navigation">
+        <div className="nav-marquee-viewport">
+          <div className="nav-marquee-track">
+            {[0, 1].map((copyIdx) => (
+              <div key={copyIdx} className="nav-marquee-group" aria-hidden={copyIdx === 1 ? 'true' : undefined}>
+                <a
+                  href="#projects"
+                  className={`nav-pill-item ${activeSection === 'projects' ? 'active' : ''}`}
+                  onClick={(e) => scrollTo(e, '#projects')}
+                >
+                  [PROJECTS]
+                </a>
+                <a
+                  href="#experience"
+                  className={`nav-pill-item ${activeSection === 'experience' ? 'active' : ''}`}
+                  onClick={(e) => scrollTo(e, '#experience')}
+                >
+                  [EXPERIENCE]
+                </a>
+                <a
+                  href="#education"
+                  className={`nav-pill-item ${activeSection === 'education' ? 'active' : ''}`}
+                  onClick={(e) => scrollTo(e, '#education')}
+                >
+                  [EDUCATION]
+                </a>
+                <a
+                  href="#skills"
+                  className={`nav-pill-item ${activeSection === 'skills' ? 'active' : ''}`}
+                  onClick={(e) => scrollTo(e, '#skills')}
+                >
+                  [SKILLS]
+                </a>
+                <a
+                  href="#contact"
+                  className={`nav-pill-item ${activeSection === 'contact' ? 'active' : ''}`}
+                  onClick={(e) => scrollTo(e, '#contact')}
+                >
+                  [CONTACT]
+                </a>
+                <a
+                  href="https://razorpay.me/@cassinicorp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-pill-item nav-pill-support"
+                >
+                  [SUPPORT ME]
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
+        <button className="nav-pill-theme" onClick={toggleTheme} aria-label="Toggle theme">
+          <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+        </button>
       </header>
-      <nav className={`hdr-nav${isNavOpen ? ' open' : ''}`}>
-        <ul>
-          {NAV.map((id) => (
-            <li key={id}>
-              <a href={`#${id}`} className={activeSection === id ? 'active' : ''} onClick={(e) => scrollTo(e, `#${id}`)}>
-                {id.charAt(0).toUpperCase() + id.slice(1)}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+
+      {/* ══ FULLSCREEN HERO ═════════════════════════════════════════ */}
+      <section id="home" className="hero-fullscreen">
+        <canvas
+          ref={canvasRef}
+          width={1920}
+          height={1080}
+          className="hero-canvas"
+          aria-label="Interactive character head rotation tracking cursor"
+        />
+
+        {/* Subtle gradient vignette to ensure bottom-left text readability */}
+        <div className="hero-vignette" />
+
+        {/* Bottom-Left Hero Content */}
+        <div className="hero-bottom-left">
+          <p className="hero-hi-spaced">Hi, I'm</p>
+          <h1 className="hero-script-name">Harx🔱</h1>
+          <p className="hero-compact-bio">
+            Full-Stack Developer crafting high-performance, intelligent digital experiences from concept to scale. Specialized in modern web architectures and agentic AI.
+          </p>
+          <div className="hero-pill-btns">
+            <a href="#experience" className="pill-btn-solid" onClick={(e) => scrollTo(e, '#experience')}>
+              <span>Experience</span>
+              <span className="btn-arrow">→</span>
+            </a>
+            <a href="#contact" className="pill-btn-frosted" onClick={(e) => scrollTo(e, '#contact')}>
+              Say Hello
+            </a>
+          </div>
+        </div>
+
+
+      </section>
 
       <main className="pf-main">
-
-        {/* ══ HERO ═════════════════════════════════════════════════════════ */}
-        <section id="home" className="hero">
-          <div className="hero-inner">
-            <div className="avatar-wrap">
-              <div className="avatar-ring" />
-              <img src={UserImage} alt="Harshit" className="avatar-img" />
-              <div className="avatar-glow" />
-            </div>
-            <div className="hero-copy">
-              <p className="hero-hi">Hi there, I'm</p>
-              <h1 className="hero-name">Harshit</h1>
-              <div className="hero-role">
-                <Typewriter texts={['Full-Stack Developer', 'AI Engineer', 'Co-Founder', 'Builder of 0→1 Products']} speed={72} />
-              </div>
-              <p className="hero-bio">
-                Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.
-              </p>
-              <div className="hero-btns">
-                <a href="#projects" className="btn-primary" onClick={(e) => scrollTo(e, '#projects')}>View Projects</a>
-                <a href="#contact" className="btn-ghost" onClick={(e) => scrollTo(e, '#contact')}>Contact Me</a>
-              </div>
-            </div>
-          </div>
-
-          <button className="scroll-cue" onClick={(e) => scrollTo(e, '#projects')} aria-label="Scroll down">
-            <div className="cue-mouse"><div className="cue-dot" /></div>
-          </button>
-        </section>
 
         {/* ══ PROJECTS ═════════════════════════════════════════════════════ */}
         <section id="projects">
@@ -615,6 +961,13 @@ const Portfolio = () => {
             <h2>Skills</h2>
             <p className="sec-sub">My technical toolkit</p>
           </div>
+          <div className="skills-overview-card reveal" data-delay="60" {...tilt}>
+            <div className="shine" />
+            <div className="skills-overview-accent" />
+            <p className="skills-overview-text">
+              Full-Stack Developer and AI Engineer with hands on experience building products end-to-end—from idea validation, MVP architecture, and scalable backend systems to real-time applications, and cloud deployments. I’ve shipped AI-powered platforms using LLMs, RAG pipelines, agentic workflows, vector search, and model fine-tuning, alongside full-stack systems across web, infra, and DevOps layers. Beyond engineering, I understand product: user acquisition, onboarding, growth loops, and continuous iteration driven by real user feedback and market signals. I thrive in 0→1 environments, solving real problems with pragmatic execution, fast iteration, and ownership from concept to scale.
+            </p>
+          </div>
           <div className="skills-grid">
             {Object.entries(SKILLS).map(([cat, skills], ci) => (
               <div key={cat} className="skill-card reveal" data-delay={String(ci * 110)} {...tilt}>
@@ -668,43 +1021,73 @@ const Portfolio = () => {
         body { overflow-x:hidden; -ms-overflow-style:none; scrollbar-width:none; }
         body::-webkit-scrollbar { display:none; }
 
-        /* Custom cursor */
-        .custom-cursor {
-          position:fixed; top:0; left:0; z-index:999999;
-          width:12px; height:12px; border-radius:50%;
-          background:var(--blue);
-          box-shadow:0 0 8px var(--blue), 0 0 16px rgba(0,112,243,0.45);
-          pointer-events:none; will-change:transform;
+        /* Custom Magnetic Cursor */
+        .cursor-dot {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 0 20px rgba(255, 255, 255, 0.6);
+          pointer-events: none;
+          z-index: 999999;
+          will-change: transform;
+        }
+
+        .cursor-ring {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.05);
+          box-shadow: 0 0 16px rgba(255, 255, 255, 0.16);
+          pointer-events: none;
+          z-index: 999998;
+          will-change: transform, width, height, border-color, background;
+          transition: width 0.22s var(--ease), height 0.22s var(--ease), border-color 0.22s ease, background 0.22s ease;
+        }
+
+        .cursor-ring.is-hovering {
+          width: 56px;
+          height: 56px;
+          border-color: rgba(255, 255, 255, 0.95);
+          background: rgba(255, 255, 255, 0.14);
+          box-shadow: 0 0 24px rgba(255, 255, 255, 0.35);
         }
 
         /* Tokens */
         :root {
-          --blue:   #0070f3;
-          --purple: #6c5ce7;
-          --teal:   #00b894;
-          --orange: #ffa500;
+          --blue:   #f43f5e;
+          --purple: #9f1239;
+          --teal:   #fb7185;
+          --orange: #f97316;
           --ease:   cubic-bezier(0.16,1,0.3,1);
           --font:   'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         }
         [data-theme='dark'] {
-          --bg:      #050508;
-          --bg2:     #0c0c14;
+          --bg:      #000000;
+          --bg2:     #08080c;
           --card:    rgba(255,255,255,0.042);
           --border:  rgba(255,255,255,0.08);
           --text:    #ececf4;
           --muted:   #8888a0;
-          --shadow:  rgba(0,0,0,0.6);
-          --glow:    rgba(0,112,243,0.25);
+          --shadow:  rgba(0,0,0,0.85);
+          --glow:    rgba(244,63,94,0.32);
         }
         [data-theme='light'] {
-          --bg:      #f0f4f8;
-          --bg2:     #e4eaf0;
-          --card:    rgba(255,255,255,0.72);
-          --border:  rgba(0,0,0,0.09);
+          --bg:      #fdfbfb;
+          --bg2:     #f7f2f2;
+          --card:    rgba(255,255,255,0.8);
+          --border:  rgba(0,0,0,0.08);
           --text:    #18182c;
           --muted:   #55556a;
-          --shadow:  rgba(0,0,0,0.1);
-          --glow:    rgba(0,112,243,0.14);
+          --shadow:  rgba(0,0,0,0.08);
+          --glow:    rgba(225,29,72,0.18);
         }
 
         /* Base */
@@ -723,64 +1106,146 @@ const Portfolio = () => {
           border-radius:0 2px 2px 0;
         }
 
-        /* ── Header ─────────────────────────────────────────────── */
-        .hdr {
-          position:fixed; top:0; left:0; right:0; z-index:1000;
-          display:flex; align-items:center; justify-content:space-between;
-          padding:1.1rem 3rem;
-          background:rgba(5,5,8,.74);
-          backdrop-filter:blur(22px) saturate(180%);
-          -webkit-backdrop-filter:blur(22px) saturate(180%);
-          border-bottom:1px solid var(--border);
-          transition:background .3s;
+        /* ── Floating Frosted-Glass Header Navigation Pill ────────── */
+        .floating-nav-pill {
+          position: fixed;
+          top: 1.6rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          width: min(560px, calc(100vw - 2.5rem));
+          max-width: 560px;
+          padding: 0.38rem 0.45rem 0.38rem 0.65rem;
+          background: rgba(14, 14, 20, 0.75);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 9999px;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 24px rgba(244, 63, 94, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+          transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        [data-theme='light'] .hdr { background:rgba(240,244,248,.84); }
-
-        .hdr-logo {
-          font-weight:400; font-size:1.55rem; letter-spacing:-.5px;
-          color:var(--text); cursor:default; user-select:none; pointer-events:none;
-        }
-
-        .hdr-nav {
-          position:fixed; top:0; left:50%; transform:translateX(-50%);
-          display:flex; align-items:center; height:64px; z-index:999;
-        }
-        .hdr-nav ul { display:flex; list-style:none; gap:.15rem; }
-        .hdr-nav ul li a {
-          display:block; padding:.48rem .9rem;
-          color:var(--muted); text-decoration:none;
-          font-weight:500; font-size:.88rem; border-radius:8px;
-          transition:all .2s; position:relative;
-        }
-        .hdr-nav ul li a:hover,
-        .hdr-nav ul li a.active { color:var(--text); background:var(--card); }
-        .hdr-nav ul li a.active::after {
-          content:''; position:absolute;
-          bottom:4px; left:50%; transform:translateX(-50%);
-          width:4px; height:4px; border-radius:50%;
-          background:var(--blue);
+        [data-theme='light'] .floating-nav-pill {
+          background: rgba(255, 255, 255, 0.82);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        .hdr-right { display:flex; align-items:center; gap:.65rem; }
-
-        .support-btn {
-          padding:.5rem 1.1rem;
-          background:linear-gradient(135deg,var(--blue),var(--purple));
-          color:#fff; text-decoration:none;
-          font-weight:700; font-size:.82rem; border-radius:50px;
-          transition:all .3s; white-space:nowrap;
+        .nav-marquee-viewport {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          position: relative;
+          mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
         }
-        .support-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--glow); filter:brightness(1.1); }
 
-        .icon-btn {
-          background:var(--card); border:1px solid var(--border);
-          color:var(--muted); cursor:pointer;
-          width:38px; height:38px; border-radius:10px;
-          display:flex; align-items:center; justify-content:center;
-          font-size:.95rem; transition:all .2s;
+        .nav-marquee-track {
+          display: flex;
+          align-items: center;
+          width: max-content;
+          animation: navMarquee 22s linear infinite;
         }
-        .icon-btn:hover { color:var(--text); background:var(--border); }
-        .menu-btn { display:none; }
+        .nav-marquee-track:hover {
+          animation-play-state: paused;
+        }
+
+        @keyframes navMarquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .nav-marquee-group {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          padding-right: 0.3rem;
+          flex-shrink: 0;
+        }
+
+        .nav-pill-item {
+          color: rgba(255, 255, 255, 0.68);
+          text-decoration: none;
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          padding: 0.38rem 0.72rem;
+          border-radius: 9999px;
+          transition: all 0.22s ease;
+          white-space: nowrap;
+          display: inline-flex;
+          align-items: center;
+        }
+        .nav-pill-item:hover,
+        .nav-pill-item.active {
+          color: #ffffff;
+          background: rgba(244, 63, 94, 0.18);
+        }
+        [data-theme='light'] .nav-pill-item {
+          color: #4b5563;
+        }
+        [data-theme='light'] .nav-pill-item:hover,
+        [data-theme='light'] .nav-pill-item.active {
+          color: #be123c;
+          background: rgba(225, 29, 72, 0.1);
+        }
+
+        .nav-pill-support {
+          color: #ff4d6d !important;
+          background: rgba(255, 77, 109, 0.1);
+          border: 1px solid rgba(255, 77, 109, 0.28);
+        }
+        .nav-pill-support:hover {
+          color: #ffffff !important;
+          background: rgba(255, 77, 109, 0.26);
+          border-color: rgba(255, 77, 109, 0.6);
+          box-shadow: 0 0 14px rgba(255, 77, 109, 0.35);
+        }
+        [data-theme='light'] .nav-pill-support {
+          color: #e11d48 !important;
+          background: rgba(225, 29, 72, 0.08);
+          border: 1px solid rgba(225, 29, 72, 0.25);
+        }
+        [data-theme='light'] .nav-pill-support:hover {
+          color: #be123c !important;
+          background: rgba(225, 29, 72, 0.16);
+          border-color: rgba(225, 29, 72, 0.45);
+        }
+
+        .nav-pill-theme {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #ffffff;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.82rem;
+          margin-left: 0.35rem;
+          transition: all 0.22s ease;
+          flex-shrink: 0;
+          cursor: pointer;
+        }
+        .nav-pill-theme:hover {
+          background: rgba(255, 255, 255, 0.18);
+          color: #ffffff;
+          transform: rotate(20deg);
+        }
+        [data-theme='light'] .nav-pill-theme {
+          background: rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          color: #1f2937;
+        }
+        [data-theme='light'] .nav-pill-theme:hover {
+          background: rgba(0, 0, 0, 0.1);
+        }
 
         /* ── Layout ─────────────────────────────────────────────── */
         .pf-main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:0 2rem; }
@@ -805,79 +1270,187 @@ const Portfolio = () => {
           transform:translateY(0) perspective(700px) rotateX(0deg);
         }
 
-        /* ── Hero ───────────────────────────────────────────────── */
-        .hero {
-          min-height:100vh;
-          display:flex; flex-direction:column;
-          align-items:center; justify-content:center;
-          text-align:center; position:relative;
-          padding-top:6rem; overflow:hidden;
+        /* ── Fullscreen Hero ────────────────────────────────────── */
+        .hero-fullscreen {
+          position: relative;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+          background: #000000;
+          display: flex;
+          align-items: flex-end;
+          padding: 0;
+          margin: 0;
+          transform: none !important;
+        }
+
+        .hero-canvas {
+          position: absolute;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          object-fit: cover;
+          background-color: #000000;
+          z-index: 1;
+          pointer-events: none;
+          /* Explicitly NO CSS 3D transforms: rock-solid motionless */
+          transform: none !important;
+          perspective: none !important;
+        }
+
+        .hero-vignette {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          pointer-events: none;
+          background: radial-gradient(circle at 75% 25%, transparent 45%, rgba(0, 0, 0, 0.45) 100%),
+                      linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 30%, transparent 60%);
+        }
+
+        /* Hero Typography (Bottom-Left) */
+        .hero-bottom-left {
+          position: absolute;
+          bottom: 3.8rem;
+          left: 4.5rem;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          max-width: 440px;
+          pointer-events: auto;
+          animation: heroFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes heroFadeIn {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-hi-spaced {
+          font-size: 0.95rem;
+          font-weight: 500;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.72);
+          margin-bottom: 0.15rem;
+        }
+
+        .hero-script-name {
+          font-family: 'Dancing Script', cursive;
+          font-size: clamp(4rem, 6.8vw, 5.8rem);
+          font-weight: 700;
+          line-height: 1.04;
+          color: #ffffff;
+          margin: 0 0 0.85rem -0.25rem;
+          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 255, 255, 0.3);
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+        }
+
+        .hero-compact-bio {
+          font-size: 0.92rem;
+          line-height: 1.62;
+          color: rgba(255, 255, 255, 0.72);
+          max-width: 340px;
+          margin-bottom: 1.7rem;
+          font-weight: 400;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Two stylish white pill buttons */
+        .hero-pill-btns {
+          display: flex;
+          align-items: center;
+          gap: 0.9rem;
+          flex-wrap: wrap;
+        }
+
+        .pill-btn-solid {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.65rem;
+          padding: 0.78rem 1.65rem;
+          border-radius: 9999px;
+          background: #ffffff;
+          color: #000000;
+          text-decoration: none;
+          font-size: 0.88rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          transition: all 0.25s var(--ease);
+          box-shadow: 0 4px 24px rgba(255, 255, 255, 0.24);
+        }
+        .pill-btn-solid:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(255, 255, 255, 0.42);
+        }
+        .btn-arrow {
+          font-size: 1.05rem;
+          transition: transform 0.25s var(--ease);
+        }
+        .pill-btn-solid:hover .btn-arrow {
+          transform: translateX(4px);
+        }
+
+        .pill-btn-frosted {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.78rem 1.65rem;
+          border-radius: 9999px;
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+          border: 1.5px solid rgba(255, 255, 255, 0.42);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          text-decoration: none;
+          font-size: 0.88rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          transition: all 0.25s var(--ease);
+        }
+        .pill-btn-frosted:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.9);
+          transform: translateY(-2px);
         }
 
 
-        /* Hero inner */
-        .hero-inner {
-          display:flex; flex-direction:column;
-          align-items:center; gap:2.2rem;
-          z-index:1; max-width:760px;
-          animation:heroFade 1s var(--ease) both;
+
+        /* Minimalist scroll cue */
+        .scroll-cue-minimal {
+          position: absolute;
+          bottom: 1.8rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10;
+          background: none;
+          border: none;
+          cursor: pointer;
+          opacity: 0.6;
+          transition: opacity 0.25s ease;
         }
-        @keyframes heroFade {
-          from{opacity:0;transform:translateY(28px)}
-          to{opacity:1;transform:translateY(0)}
+        .scroll-cue-minimal:hover {
+          opacity: 1;
         }
 
-        /* Avatar */
-        .avatar-wrap { position:relative; width:105px; height:105px; flex-shrink:0; }
-        .avatar-ring {
-          position:absolute; inset:-9px; border-radius:50%;
-          background:conic-gradient(var(--blue),var(--purple),var(--teal),var(--blue));
-          animation:spin 4.5s linear infinite;
+        @media (max-width: 900px) {
+          .hero-bottom-left {
+            left: 2rem;
+            bottom: 2.5rem;
+            max-width: calc(100vw - 4rem);
+          }
+          .hero-tracking-indicator {
+            display: none;
+          }
+          .floating-nav-pill {
+            top: 1rem;
+            width: calc(100vw - 1.5rem);
+            max-width: calc(100vw - 1.5rem);
+            padding: 0.32rem 0.35rem 0.32rem 0.45rem;
+          }
+          .nav-pill-item {
+            font-size: 0.66rem;
+            padding: 0.32rem 0.55rem;
+          }
         }
-        .avatar-ring::before {
-          content:''; position:absolute; inset:4px;
-          border-radius:50%; background:var(--bg);
-        }
-        @keyframes spin { to{transform:rotate(360deg)} }
-        .avatar-img {
-          position:absolute; inset:0; width:100%; height:100%;
-          border-radius:50%; object-fit:cover; z-index:1;
-        }
-        .avatar-glow {
-          position:absolute; inset:-24px; border-radius:50%;
-          background:radial-gradient(circle,rgba(0,112,243,.32),transparent 70%);
-          pointer-events:none; animation:glowPulse 3.5s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-          0%,100%{opacity:.4;transform:scale(1)}
-          50%{opacity:.85;transform:scale(1.07)}
-        }
-
-        /* Hero text */
-        .hero-copy { text-align:center; }
-        .hero-hi { color:var(--muted); font-size:1.05rem; margin-bottom:.4rem; letter-spacing:.04em; }
-        .hero-name {
-          font-size:clamp(3rem,9vw,6rem); font-weight:400;
-          letter-spacing:-3px; line-height:1;
-          color:var(--text); margin-bottom:1rem;
-        }
-        .hero-role {
-          font-size:clamp(1.15rem,3vw,1.75rem); font-weight:600;
-          color:var(--text); min-height:2.4rem; margin-bottom:1.5rem;
-        }
-        .tw-text { color:var(--text); }
-        .tw-cursor {
-          display:inline-block; width:2px; margin-left:2px;
-          background:var(--blue); color:transparent;
-          animation:blink .8s step-end infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-        .hero-bio {
-          color:var(--muted); font-size:.98rem; line-height:1.82;
-          max-width:640px; margin:0 auto 2rem;
-        }
-        .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
 
         /* Buttons */
         .btn-primary {
@@ -897,7 +1470,7 @@ const Portfolio = () => {
           border:2px solid var(--border); transition:all .3s;
           backdrop-filter:blur(8px);
         }
-        .btn-ghost:hover { border-color:var(--blue); color:var(--blue); transform:translateY(-3px); background:rgba(0,112,243,.06); }
+        .btn-ghost:hover { border-color:var(--blue); color:var(--blue); transform:translateY(-3px); background:rgba(244,63,94,.08); }
         .btn-lg { padding:1rem 2.6rem; font-size:1.05rem; }
 
         /* Scroll cue */
@@ -924,15 +1497,15 @@ const Portfolio = () => {
         }
 
         /* ── Shared card ────────────────────────────────────────── */
-        .proj-card,.exp-card,.edu-card,.skill-card {
+        .proj-card,.exp-card,.edu-card,.skill-card,.skills-overview-card {
           position:relative; overflow:hidden;
           background:var(--card); border:1px solid var(--border); border-radius:20px;
           will-change:transform; isolation:isolate;
           transition:border-color .3s, box-shadow .3s;
         }
-        .proj-card:hover,.exp-card:hover,.edu-card:hover,.skill-card:hover {
-          border-color:rgba(0,112,243,.35);
-          box-shadow:0 20px 50px var(--shadow),0 0 0 1px rgba(0,112,243,.1);
+        .proj-card:hover,.exp-card:hover,.edu-card:hover,.skill-card:hover,.skills-overview-card:hover {
+          border-color:rgba(244,63,94,.38);
+          box-shadow:0 20px 50px var(--shadow),0 0 0 1px rgba(244,63,94,.15);
         }
         .shine {
           position:absolute; inset:0; z-index:2;
@@ -945,16 +1518,16 @@ const Portfolio = () => {
         .tag {
           padding:.28rem .65rem; border-radius:20px;
           font-size:.76rem; font-weight:500;
-          background:rgba(0,112,243,.1); color:var(--blue);
-          border:1px solid rgba(0,112,243,.18); transition:all .2s;
+          background:rgba(244,63,94,.1); color:var(--blue);
+          border:1px solid rgba(244,63,94,.2); transition:all .2s;
         }
         .tag:hover { background:var(--blue); color:#fff; border-color:transparent; }
 
         .date-chip {
           display:inline-block; padding:.28rem .72rem; border-radius:20px;
           font-size:.76rem; font-weight:600;
-          background:rgba(0,112,243,.1); color:var(--blue);
-          border:1px solid rgba(0,112,243,.22);
+          background:rgba(244,63,94,.1); color:var(--blue);
+          border:1px solid rgba(244,63,94,.24);
         }
 
         /* ── Projects ───────────────────────────────────────────── */
@@ -1014,6 +1587,26 @@ const Portfolio = () => {
         .edu-card p  { font-size:.875rem; color:var(--muted); line-height:1.65; }
 
         /* ── Skills ─────────────────────────────────────────────── */
+        .skills-overview-card {
+          padding: 2.2rem 2.5rem 2.2rem 2.8rem;
+          margin-bottom: 2.2rem;
+          backdrop-filter: blur(12px);
+        }
+        .skills-overview-accent {
+          position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+          border-radius: 20px 0 0 20px;
+          background: linear-gradient(to bottom, var(--blue), var(--purple));
+        }
+        .skills-overview-text {
+          font-size: 1.05rem;
+          line-height: 1.82;
+          color: var(--text);
+          font-weight: 400;
+          letter-spacing: -0.01em;
+        }
+        [data-theme='light'] .skills-overview-text {
+          color: #374151;
+        }
         .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(275px,1fr)); gap:1.4rem; }
         .skill-card { padding:2rem; }
         .skill-card h3 {
@@ -1043,7 +1636,7 @@ const Portfolio = () => {
         .contact-wrap { padding:5rem 2rem; position:relative; }
         .contact-glow {
           position:absolute; inset:0; border-radius:24px;
-          background:radial-gradient(ellipse at 50% 0%,rgba(0,112,243,.12),transparent 70%);
+          background:radial-gradient(ellipse at 50% 0%,rgba(244,63,94,.18),transparent 70%);
           pointer-events:none;
         }
         .contact-wrap h2 {
@@ -1102,6 +1695,8 @@ const Portfolio = () => {
           .proj-grid { grid-template-columns:1fr; }
           .edu-grid  { grid-template-columns:1fr; }
           .skills-grid { grid-template-columns:1fr; }
+          .skills-overview-card { padding: 1.5rem 1.6rem 1.5rem 1.8rem; margin-bottom: 1.8rem; }
+          .skills-overview-text { font-size: 0.94rem; line-height: 1.7; }
         }
 
         @media(max-width:480px){
