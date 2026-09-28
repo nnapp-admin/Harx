@@ -5,8 +5,8 @@ import React, { useEffect, useRef } from 'react';
  * Built with Verlet numerical integration, distance constraint relaxation,
  * dynamic mouse repulsion, swipe momentum, scroll inertia, and multi-pass neon bloom.
  *
- * Elongates across the full website down to the footer area on widescreen
- * desktop viewports (>= 1200px) where the right-hand negative space is present.
+ * Real physics damping: strings react fluidly to interaction and then naturally
+ * settle and reset back to their serene vertical resting positions.
  */
 const NeonStrings = ({ isVisible = true }) => {
   const canvasRef = useRef(null);
@@ -23,9 +23,11 @@ const NeonStrings = ({ isVisible = true }) => {
     // Simulation settings
     const NUM_STRINGS = 7;
     const NUM_POINTS = 32;
-    const FRICTION = 0.958;
-    const GRAVITY = 0.34;
-    const INTERACT_RADIUS = 82;
+    const FRICTION = 0.932;       // Natural damping: smooth energy decay over 2-3 oscillations
+    const GRAVITY = 0.42;        // Downward gravitational pull
+    const RESTORE_X = 0.024;     // Restoring spring pulling string back to vertical column
+    const RESTORE_Y = 0.008;
+    const INTERACT_RADIUS = 76;
     const CONSTRAINT_ITERATIONS = 6;
 
     let width = window.innerWidth;
@@ -137,8 +139,8 @@ const NeonStrings = ({ isVisible = true }) => {
       lastTime = currentTime;
 
       // Dampen mouse velocity if cursor stops moving
-      mouse.vx *= 0.85;
-      mouse.vy *= 0.85;
+      mouse.vx *= 0.82;
+      mouse.vy *= 0.82;
 
       // Apply scroll inertia to strings
       if (Math.abs(scrollVelocity) > 0.04) {
@@ -147,12 +149,12 @@ const NeonStrings = ({ isVisible = true }) => {
           for (let p = 1; p < points.length; p++) {
             const progress = p / (points.length - 1);
             // Lift strings slightly against scroll direction
-            points[p].y -= scrollVelocity * 0.055 * progress;
+            points[p].y -= scrollVelocity * 0.05 * progress;
             // Alternating lateral breeze sway
-            points[p].x += Math.sin(s * 0.85 + p * 0.15) * scrollVelocity * 0.03 * progress;
+            points[p].x += Math.sin(s * 0.85 + p * 0.15) * scrollVelocity * 0.028 * progress;
           }
         }
-        scrollVelocity *= 0.88;
+        scrollVelocity *= 0.85;
       }
 
       // ── 1. Physics update (Verlet + Interaction) ───────────
@@ -169,14 +171,11 @@ const NeonStrings = ({ isVisible = true }) => {
           pt.oldX = pt.x;
           pt.oldY = pt.y;
 
-          // Soft restoring spring to baseline vertical column
-          const restoreX = (pt.baseX - pt.x) * 0.0075;
-          const restoreY = (pt.baseY - pt.y) * 0.004;
+          // Restoring spring to baseline vertical column
+          const restoreX = (pt.baseX - pt.x) * RESTORE_X;
+          const restoreY = (pt.baseY - pt.y) * RESTORE_Y;
 
-          // Subtle organic breathing breeze so strings feel dynamic and alive
-          const breeze = Math.sin(currentTime * 0.0016 + s * 0.75 + p * 0.12) * 0.35;
-
-          pt.x += vx + restoreX + breeze;
+          pt.x += vx + restoreX;
           pt.y += vy + GRAVITY + restoreY;
 
           // Mouse collision / curtain push & swipe transfer
@@ -188,12 +187,23 @@ const NeonStrings = ({ isVisible = true }) => {
             if (dist < INTERACT_RADIUS && dist > 0) {
               const force = (INTERACT_RADIUS - dist) / INTERACT_RADIUS;
               // Repulsion away from cursor + transfer cursor swipe velocity
-              const pushX = (dx / dist) * force * 11.5 + mouse.vx * 0.3 * force;
-              const pushY = (dy / dist) * force * 3.2 + mouse.vy * 0.12 * force;
+              const pushX = (dx / dist) * force * 10.5 + mouse.vx * 0.28 * force;
+              const pushY = (dy / dist) * force * 2.8 + mouse.vy * 0.10 * force;
 
               pt.x += pushX;
               pt.y += pushY;
             }
+          }
+
+          // Real physics rest threshold: settle cleanly back to baseline resting state
+          const speedSq = (pt.x - pt.oldX) ** 2 + (pt.y - pt.oldY) ** 2;
+          const distToBaseSq = (pt.x - pt.baseX) ** 2 + (pt.y - pt.baseY) ** 2;
+
+          if (speedSq < 0.008 && distToBaseSq < 0.06) {
+            pt.x = pt.baseX;
+            pt.oldX = pt.baseX;
+            pt.y = pt.baseY;
+            pt.oldY = pt.baseY;
           }
         }
       }
