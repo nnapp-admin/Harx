@@ -285,13 +285,13 @@ const Article = () => {
         .dir-main-container {
           max-width: 980px;
           margin: 0 auto;
-          padding: 8rem 2rem 5rem;
+          padding: 5.4rem 1.8rem 4rem;
           position: relative;
           z-index: 4;
         }
 
         .dir-header-text {
-          margin-bottom: 3.5rem;
+          margin-bottom: 2rem;
         }
 
         .dir-kicker {

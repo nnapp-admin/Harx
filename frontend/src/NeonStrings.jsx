@@ -291,11 +291,34 @@ const NeonStrings = ({ isVisible = true }) => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={`site-neon-strings${!isVisible ? ' strings-hidden' : ''}`}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={`site-neon-strings${!isVisible ? ' strings-hidden' : ''}`}
+        aria-hidden="true"
+      />
+      <style>{`
+        .site-neon-strings {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 1;
+          pointer-events: none;
+          transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .site-neon-strings.strings-hidden {
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+        @media (max-width: 1200px) {
+          .site-neon-strings {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </>
   );
 };
 

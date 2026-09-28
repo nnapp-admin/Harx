@@ -408,7 +408,7 @@ const ArticleReader = () => {
         .reader-layout-container {
           max-width: 1240px;
           margin: 0 auto;
-          padding: 6.8rem 1.8rem 4rem;
+          padding: 5.4rem 1.8rem 4rem;
           display: flex;
           gap: 3.5rem;
           position: relative;
