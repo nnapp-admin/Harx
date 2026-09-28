@@ -368,15 +368,23 @@ const Article = () => {
         }
 
         .card-category-pill {
-          background: var(--rose-dim);
-          border: 1px solid rgba(244, 63, 94, 0.35);
-          color: var(--rose);
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.72);
           font-size: 0.72rem;
-          font-weight: 700;
+          font-weight: 600;
           letter-spacing: 0.12em;
-          padding: 0.3rem 0.75rem;
+          padding: 0.28rem 0.75rem;
           border-radius: 9999px;
           text-transform: uppercase;
+          backdrop-filter: blur(8px);
+          transition: all 0.2s ease;
+        }
+
+        [data-theme='light'] .card-category-pill {
+          background: rgba(0, 0, 0, 0.045);
+          color: #4b5563;
+          border-color: rgba(0, 0, 0, 0.1);
         }
 
         .card-time-date {
@@ -426,16 +434,33 @@ const Article = () => {
 
         .card-tag-pill {
           background: rgba(255, 255, 255, 0.05);
-          border: 1px solid var(--border);
-          color: var(--muted);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.72);
           font-size: 0.76rem;
           font-weight: 500;
-          padding: 0.25rem 0.65rem;
-          border-radius: 6px;
+          padding: 0.28rem 0.68rem;
+          border-radius: 20px;
+          backdrop-filter: blur(8px);
+          transition: all 0.2s ease;
+        }
+
+        .card-tag-pill:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.24);
+          transform: translateY(-1px);
         }
 
         [data-theme='light'] .card-tag-pill {
-          background: rgba(0, 0, 0, 0.04);
+          background: rgba(0, 0, 0, 0.045);
+          color: #4b5563;
+          border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme='light'] .card-tag-pill:hover {
+          background: rgba(0, 0, 0, 0.09);
+          color: #111827;
+          border-color: rgba(0, 0, 0, 0.2);
         }
 
         .card-footer-action {
