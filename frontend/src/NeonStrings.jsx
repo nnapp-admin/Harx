@@ -3,10 +3,12 @@ import React, { useEffect, useRef } from 'react';
 /**
  * 7 Interactive Neon Glowing Physics Strings (Curtain Simulation)
  * Built with Verlet numerical integration, distance constraint relaxation,
- * dynamic mouse repulsion, swipe momentum, scroll inertia, and multi-pass neon bloom.
+ * dynamic mouse repulsion, and multi-pass neon bloom.
  *
- * Real physics damping: strings react fluidly to interaction and then naturally
- * settle and reset back to their serene vertical resting positions.
+ * - Only hover effect causes disruption (no movement during scroll).
+ * - After movement, strings gracefully oscillate and slowly come to a
+ *   complete, motionless rest (damped harmonic physics reset).
+ * - Spans desktop screens (>= 1200px) down through the footer area.
  */
 const NeonStrings = ({ isVisible = true }) => {
   const canvasRef = useRef(null);
@@ -23,12 +25,13 @@ const NeonStrings = ({ isVisible = true }) => {
     // Simulation settings
     const NUM_STRINGS = 7;
     const NUM_POINTS = 32;
-    const FRICTION = 0.932;       // Natural damping: smooth energy decay over 2-3 oscillations
-    const GRAVITY = 0.42;        // Downward gravitational pull
-    const RESTORE_X = 0.024;     // Restoring spring pulling string back to vertical column
-    const RESTORE_Y = 0.008;
-    const INTERACT_RADIUS = 76;
+    // Friction: 0.964 provides natural, gradual pendulum damping ("slowly slowly")
+    const FRICTION = 0.964;
+    const GRAVITY = 0.35;
+    const INTERACT_RADIUS = 85;
     const CONSTRAINT_ITERATIONS = 6;
+    const RESTORE_STIFFNESS_X = 0.012;
+    const RESTORE_STIFFNESS_Y = 0.005;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -44,10 +47,6 @@ const NeonStrings = ({ isVisible = true }) => {
       vy: 0,
       active: false,
     };
-
-    // Track scroll velocity for kinetic curtain inertia
-    let lastScrollY = window.scrollY;
-    let scrollVelocity = 0;
 
     const isBigScreen = () => window.innerWidth >= 1200;
 
@@ -95,7 +94,7 @@ const NeonStrings = ({ isVisible = true }) => {
       }
     };
 
-    // Mouse listeners
+    // Mouse listeners (only hover effect causes disruption)
     const handleMouseMove = (e) => {
       if (!isBigScreen()) return;
       if (mouse.prevX === -9999) {
@@ -117,47 +116,19 @@ const NeonStrings = ({ isVisible = true }) => {
       mouse.y = -9999;
     };
 
-    // Scroll listener for physical curtain inertia
-    const handleScroll = () => {
-      if (!isBigScreen()) return;
-      const currentY = window.scrollY;
-      const delta = currentY - lastScrollY;
-      lastScrollY = currentY;
-      scrollVelocity = delta;
-    };
-
     // Main 60 FPS physics & render loop
-    let lastTime = performance.now();
-
-    const loop = (currentTime) => {
+    const loop = () => {
       if (!isBigScreen()) {
         ctx.clearRect(0, 0, width, height);
         isRunning = false;
         return;
       }
 
-      lastTime = currentTime;
-
       // Dampen mouse velocity if cursor stops moving
-      mouse.vx *= 0.82;
-      mouse.vy *= 0.82;
+      mouse.vx *= 0.85;
+      mouse.vy *= 0.85;
 
-      // Apply scroll inertia to strings
-      if (Math.abs(scrollVelocity) > 0.04) {
-        for (let s = 0; s < strings.length; s++) {
-          const { points } = strings[s];
-          for (let p = 1; p < points.length; p++) {
-            const progress = p / (points.length - 1);
-            // Lift strings slightly against scroll direction
-            points[p].y -= scrollVelocity * 0.05 * progress;
-            // Alternating lateral breeze sway
-            points[p].x += Math.sin(s * 0.85 + p * 0.15) * scrollVelocity * 0.028 * progress;
-          }
-        }
-        scrollVelocity *= 0.85;
-      }
-
-      // ── 1. Physics update (Verlet + Interaction) ───────────
+      // ── 1. Physics update (Verlet + Damped Harmonic Restitution) ──
       for (let s = 0; s < strings.length; s++) {
         const { points } = strings[s];
 
@@ -165,20 +136,20 @@ const NeonStrings = ({ isVisible = true }) => {
           const pt = points[p];
           if (pt.pinned) continue;
 
-          // Verlet velocity
+          // Verlet velocity with physical friction damping
           const vx = (pt.x - pt.oldX) * FRICTION;
           const vy = (pt.y - pt.oldY) * FRICTION;
           pt.oldX = pt.x;
           pt.oldY = pt.y;
 
-          // Restoring spring to baseline vertical column
-          const restoreX = (pt.baseX - pt.x) * RESTORE_X;
-          const restoreY = (pt.baseY - pt.y) * RESTORE_Y;
+          // Restoring force to baseline hanging vertical column
+          const restoreX = (pt.baseX - pt.x) * RESTORE_STIFFNESS_X;
+          const restoreY = (pt.baseY - pt.y) * RESTORE_STIFFNESS_Y;
 
           pt.x += vx + restoreX;
           pt.y += vy + GRAVITY + restoreY;
 
-          // Mouse collision / curtain push & swipe transfer
+          // Hover interaction: cursor deflection + swipe velocity transfer
           if (mouse.active) {
             const dx = pt.x - mouse.x;
             const dy = pt.y - mouse.y;
@@ -186,23 +157,24 @@ const NeonStrings = ({ isVisible = true }) => {
 
             if (dist < INTERACT_RADIUS && dist > 0) {
               const force = (INTERACT_RADIUS - dist) / INTERACT_RADIUS;
-              // Repulsion away from cursor + transfer cursor swipe velocity
-              const pushX = (dx / dist) * force * 10.5 + mouse.vx * 0.28 * force;
-              const pushY = (dy / dist) * force * 2.8 + mouse.vy * 0.10 * force;
+              const pushX = (dx / dist) * force * 11 + mouse.vx * 0.28 * force;
+              const pushY = (dy / dist) * force * 3 + mouse.vy * 0.1 * force;
 
               pt.x += pushX;
               pt.y += pushY;
             }
           }
 
-          // Real physics rest threshold: settle cleanly back to baseline resting state
+          // Slow, smooth natural reset: when momentum has gradually dissipated,
+          // settle seamlessly back to exact baseline rest
+          const dxFromBase = Math.abs(pt.x - pt.baseX);
+          const dyFromBase = Math.abs(pt.y - pt.baseY);
           const speedSq = (pt.x - pt.oldX) ** 2 + (pt.y - pt.oldY) ** 2;
-          const distToBaseSq = (pt.x - pt.baseX) ** 2 + (pt.y - pt.baseY) ** 2;
 
-          if (speedSq < 0.008 && distToBaseSq < 0.06) {
+          if (dxFromBase < 0.18 && dyFromBase < 0.18 && speedSq < 0.035) {
             pt.x = pt.baseX;
-            pt.oldX = pt.baseX;
             pt.y = pt.baseY;
+            pt.oldX = pt.baseX;
             pt.oldY = pt.baseY;
           }
         }
@@ -302,7 +274,6 @@ const NeonStrings = ({ isVisible = true }) => {
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize);
 
     if (isBigScreen()) {
@@ -314,7 +285,6 @@ const NeonStrings = ({ isVisible = true }) => {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animId);
     };
