@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin, faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import NeonStrings from './NeonStrings';
-import UserImage from './assets/User.jpg';
 import AnalyticsImage from './assets/Analytics.jpg';
 import ScribingImage from './assets/scribing.jpg';
 import BrandMapImage from './assets/BrandMapmap.jpg';
@@ -324,7 +323,7 @@ const Portfolio = () => {
   const isCursorActiveRef = useRef(false);
   const [theme, setTheme] = useState('dark');
   const [activeSection, setActiveSection] = useState('home');
-  const [scrollPct, setScrollPct] = useState(0);
+  const scrollBarRef = useRef(null);
 
   // Custom Magnetic Cursor Refs & State
   const cursorDotRef = useRef(null);
@@ -430,11 +429,7 @@ const Portfolio = () => {
     const centerImg = new Image();
     centerImg.src = `${process.env.PUBLIC_URL}/frames/center.webp`;
     centerImg.onload = checkLoaded;
-    centerImg.onerror = () => {
-      centerImg.src = `${process.env.PUBLIC_URL}/center.webp`;
-      centerImg.onload = checkLoaded;
-      centerImg.onerror = checkLoaded;
-    };
+    centerImg.onerror = checkLoaded;
     centerImageRef.current = centerImg;
 
     // Preload 207 perimeter frames (0..206)
@@ -812,13 +807,26 @@ const Portfolio = () => {
   useEffect(() => {
     if (!isPageLoaded) return;
 
+    let ticking = false;
     const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollPct(total > 0 ? (window.scrollY / total) * 100 : 0);
-      const ids = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
-      for (let i = ids.length - 1; i >= 0; i--) {
-        const el = document.getElementById(ids[i]);
-        if (el && el.getBoundingClientRect().top <= 120) { setActiveSection(ids[i]); break; }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const total = document.documentElement.scrollHeight - window.innerHeight;
+          const pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+          if (scrollBarRef.current) {
+            scrollBarRef.current.style.width = `${pct}%`;
+          }
+          const ids = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
+          for (let i = ids.length - 1; i >= 0; i--) {
+            const el = document.getElementById(ids[i]);
+            if (el && el.getBoundingClientRect().top <= 120) {
+              setActiveSection((prev) => (prev !== ids[i] ? ids[i] : prev));
+              break;
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -876,8 +884,6 @@ const Portfolio = () => {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const NAV = ['home', 'projects', 'experience', 'education', 'skills', 'contact'];
-
   return (
     <div data-theme={theme} className="pf">
       {/* Custom Magnetic Cursor (hidden completely during loading/reveal and until user moves mouse) */}
@@ -885,7 +891,7 @@ const Portfolio = () => {
       <div ref={cursorRingRef} className={`cursor-ring${isHovering ? ' is-hovering' : ''}${!isCursorActive ? ' cursor-hidden' : ''}`} />
 
       {/* Top scroll progress */}
-      <div className="scroll-bar" style={{ width: `${scrollPct}%` }} />
+      <div ref={scrollBarRef} className="scroll-bar" style={{ width: '0%' }} />
 
       {/* 7 Interactive Neon Physics Strings in right black gap (elongates down to footer) */}
       <NeonStrings isVisible={isRevealing} />
@@ -1838,17 +1844,6 @@ Developer, Entrepreneur building intelligent systems from concept to scale. Spec
 
         @media(max-width:768px){
           .hdr { padding:.9rem 1.2rem; }
-          .hdr-nav {
-            display:none; position:fixed;
-            top:0; left:0; right:0; bottom:0;
-            transform:none; height:auto;
-            background:var(--bg); flex-direction:column;
-            align-items:center; justify-content:center; z-index:999;
-          }
-          .hdr-nav.open { display:flex; }
-          .hdr-nav ul { flex-direction:column; align-items:center; gap:.4rem; }
-          .hdr-nav ul li a { font-size:1.35rem; padding:.75rem 2.5rem; }
-          .menu-btn { display:flex; }
           .support-btn { display:none; }
           .pf-main { padding:0 1rem; }
           section { padding:5rem 0; }
@@ -1865,7 +1860,6 @@ Developer, Entrepreneur building intelligent systems from concept to scale. Spec
         @media(max-width:480px){
           .hero-name { font-size:2.8rem; letter-spacing:-1.5px; }
           .hero-role  { font-size:1.1rem; }
-          .avatar-wrap { width:82px; height:82px; }
           .sec-hdr h2 { font-size:1.8rem; }
         }
       `}</style>
