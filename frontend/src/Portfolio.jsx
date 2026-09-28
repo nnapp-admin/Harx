@@ -1074,24 +1074,26 @@ const Portfolio = () => {
           --font:   'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         }
         [data-theme='dark'] {
-          --bg:      #000000;
-          --bg2:     #08080c;
-          --card:    rgba(255,255,255,0.042);
-          --border:  rgba(255,255,255,0.08);
-          --text:    #ececf4;
-          --muted:   #8888a0;
-          --shadow:  rgba(0,0,0,0.85);
-          --glow:    rgba(244,63,94,0.32);
+          --bg:         #000000;
+          --bg2:        #08080c;
+          --card:       #0c0c12;
+          --card-hover: #13131c;
+          --border:     rgba(255,255,255,0.08);
+          --text:       #ececf4;
+          --muted:      #8888a0;
+          --shadow:     rgba(0,0,0,0.85);
+          --glow:       rgba(244,63,94,0.32);
         }
         [data-theme='light'] {
-          --bg:      #fdfbfb;
-          --bg2:     #f7f2f2;
-          --card:    rgba(255,255,255,0.8);
-          --border:  rgba(0,0,0,0.08);
-          --text:    #18182c;
-          --muted:   #55556a;
-          --shadow:  rgba(0,0,0,0.08);
-          --glow:    rgba(225,29,72,0.18);
+          --bg:         #fdfbfb;
+          --bg2:        #f7f2f2;
+          --card:       #ffffff;
+          --card-hover: #f9f9fb;
+          --border:     rgba(0,0,0,0.08);
+          --text:       #18182c;
+          --muted:      #55556a;
+          --shadow:     rgba(0,0,0,0.08);
+          --glow:       rgba(225,29,72,0.18);
         }
 
         /* Base */
@@ -1534,12 +1536,13 @@ const Portfolio = () => {
 
         /* ── Shared card ────────────────────────────────────────── */
         .proj-card,.exp-card,.edu-card,.skill-card,.skills-overview-card {
-          position:relative; overflow:hidden;
+          position:relative; z-index:5; overflow:hidden;
           background:var(--card); border:1px solid var(--border); border-radius:20px;
           will-change:transform; isolation:isolate;
-          transition:border-color .3s, box-shadow .3s;
+          transition:border-color .3s, box-shadow .3s, background .3s;
         }
         .proj-card:hover,.exp-card:hover,.edu-card:hover,.skill-card:hover,.skills-overview-card:hover {
+          background:var(--card-hover);
           border-color:rgba(244,63,94,.38);
           box-shadow:0 20px 50px var(--shadow),0 0 0 1px rgba(244,63,94,.15);
         }
@@ -1589,7 +1592,7 @@ const Portfolio = () => {
         .proj-card:hover .proj-img img { transform:scale(1.06); }
         .proj-overlay {
           position:absolute; inset:0;
-          background:linear-gradient(to bottom,transparent 38%,var(--bg) 100%);
+          background:linear-gradient(to bottom,transparent 38%,var(--card) 100%);
           opacity:.72;
         }
         [data-theme='light'] .proj-overlay { display:none; }
