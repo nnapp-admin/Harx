@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon, faArrowLeft, faArrowRight, faClock, faCalendarAlt, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon, faArrowLeft, faArrowRight, faClock, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import NeonStrings from './NeonStrings';
 import { ARTICLES } from './data/articlesData';
 
@@ -70,10 +70,6 @@ const Article = () => {
       <main className="dir-main-container">
         {/* Section Intro */}
         <div className="dir-header-text">
-          <div className="dir-kicker">
-            <FontAwesomeIcon icon={faShieldHalved} style={{ marginRight: '6px' }} />
-            <span>THREAT INTELLIGENCE & RESEARCH</span>
-          </div>
           <h1 className="dir-heading">Writings & Investigations</h1>
           <p className="dir-subheading">
             Deep-dive analytical research on AI security, agentic systems, corporate information environments, and emerging attack surfaces.
@@ -292,16 +288,6 @@ const Article = () => {
 
         .dir-header-text {
           margin-bottom: 2rem;
-        }
-
-        .dir-kicker {
-          display: inline-flex;
-          align-items: center;
-          font-size: 0.74rem;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          color: var(--rose);
-          margin-bottom: 1rem;
         }
 
         .dir-heading {
