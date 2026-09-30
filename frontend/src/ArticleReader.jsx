@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faArrowLeft, faListUl, faTimes, faShareNodes, faCheck } from '@fortawesome/free-solid-svg-icons';
 import NeonStrings from './NeonStrings';
 import { ARTICLES } from './data/articlesData';
-import TheSyntheticCrowd, { SECTIONS_TOC } from './articles/TheSyntheticCrowd';
+import TheSyntheticCrowd, { SECTIONS_TOC as SYNTHETIC_CROWD_TOC } from './articles/TheSyntheticCrowd';
+import TheChatbotEraIsEnding, { SECTIONS_TOC as CHATBOT_ERA_TOC } from './articles/TheChatbotEraIsEnding';
 
 const ArticleReader = () => {
   const { slug } = useParams();
@@ -17,6 +18,14 @@ const ArticleReader = () => {
 
   const scrollBarRef = useRef(null);
   const article = ARTICLES.find((a) => a.slug === slug) || ARTICLES[0];
+  const currentSlug = article.slug;
+  const currentToc = currentSlug === 'the-chatbot-era-is-ending' ? CHATBOT_ERA_TOC : SYNTHETIC_CROWD_TOC;
+
+  // Scroll to top and reset active TOC section when article changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setActiveSection(currentToc[0]?.id || 'opening');
+  }, [slug, currentToc]);
 
   // Theme synchronization
   useEffect(() => {
@@ -44,10 +53,10 @@ const ArticleReader = () => {
           }
 
           // Check active section
-          for (let i = SECTIONS_TOC.length - 1; i >= 0; i--) {
-            const el = document.getElementById(SECTIONS_TOC[i].id);
+          for (let i = currentToc.length - 1; i >= 0; i--) {
+            const el = document.getElementById(currentToc[i].id);
             if (el && el.getBoundingClientRect().top <= 140) {
-              setActiveSection(SECTIONS_TOC[i].id);
+              setActiveSection(currentToc[i].id);
               break;
             }
           }
@@ -60,7 +69,7 @@ const ArticleReader = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [currentToc]);
 
   // Jump to section with smooth scroll
   const scrollToSection = (e, id) => {
@@ -147,10 +156,10 @@ const ArticleReader = () => {
           <div className="toc-inner-card">
             <div className="toc-header">
               <span className="toc-title">CONTENTS</span>
-              <span className="toc-count">20 SECTIONS</span>
+              <span className="toc-count">{currentToc.length} SECTIONS</span>
             </div>
             <nav className="toc-list">
-              {SECTIONS_TOC.map((item) => (
+              {currentToc.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
@@ -180,7 +189,7 @@ const ArticleReader = () => {
                 </button>
               </div>
               <nav className="mobile-toc-list">
-                {SECTIONS_TOC.map((item) => (
+                {currentToc.map((item) => (
                   <a
                     key={item.id}
                     href={`#${item.id}`}
@@ -197,8 +206,8 @@ const ArticleReader = () => {
 
         {/* Main Editorial Text Column */}
         <main className="reader-content-column">
-          {slug === 'the-synthetic-crowd' ? (
-            <TheSyntheticCrowd />
+          {currentSlug === 'the-chatbot-era-is-ending' ? (
+            <TheChatbotEraIsEnding />
           ) : (
             <TheSyntheticCrowd />
           )}
@@ -266,7 +275,7 @@ const ArticleReader = () => {
           min-height: 100vh;
           font-family: var(--font);
           position: relative;
-          overflow-x: hidden;
+          overflow-x: clip;
           transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -419,6 +428,10 @@ const ArticleReader = () => {
         .reader-sidebar-toc {
           width: 280px;
           flex-shrink: 0;
+          position: sticky;
+          top: 6.5rem;
+          align-self: flex-start;
+          height: fit-content;
           display: block;
         }
 

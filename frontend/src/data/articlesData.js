@@ -13,5 +13,20 @@ export const ARTICLES = [
     excerpt: 'Imagine waking up to thousands of seemingly unrelated voices criticizing your product across Reddit, X, LinkedIn, and review platforms — not human trolls, but an autonomous agentic AI system continuously adapting its narrative. An in-depth investigation into how agentic AI collapses the cost of manufactured consensus.',
     author: 'Harshit',
     authorRole: 'AI Engineer & Systems Builder',
+  },
+  {
+    id: 'the-chatbot-era-is-ending',
+    slug: 'the-chatbot-era-is-ending',
+    title: 'The Chatbot Era Is Ending',
+    fullTitle: 'The Chatbot Era Is Ending: How Software Is Evolving From Something We Use Into Something That Works For Us',
+    subtitle: 'What Happens When Software Stops Waiting for Us?',
+    lead: 'An architectural investigation into whether computing is undergoing an interface transition: from dormant tools that wait for human input to persistent, autonomous agents that observe, remember, and work asynchronously in our absence.',
+    category: 'Interface Architecture',
+    date: 'September 2026',
+    readTime: '19 min read',
+    tags: ['Autonomous Agents', 'Interface Architecture', 'Human-AI Interaction', 'Future of Software', 'Personal AI'],
+    excerpt: 'For fifty years, every piece of software ever written had one defining characteristic: it waited. You opened it, clicked something, gave it an instruction. But a new paradigm is emerging — software with memory, initiative, and proactive agency that works while you sleep. The transition from software-as-a-tool to software-as-a-coworker.',
+    author: 'Harshit',
+    authorRole: 'AI Engineer & Systems Builder',
   }
 ];
